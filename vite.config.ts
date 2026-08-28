@@ -4,15 +4,23 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import {defineConfig} from 'vite';
 
+const indexEntry = fileURLToPath(new URL('./src/index.ts', import.meta.url));
+
+const styleEntry = fileURLToPath(new URL('./src/styles.css', import.meta.url));
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
 
   build: {
+    cssCodeSplit: true,
+
     lib: {
-      entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+      entry: {
+        index: indexEntry,
+        style: styleEntry,
+      },
       formats: ['es'],
-      fileName: 'index',
-      cssFileName: 'style',
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
 
     rolldownOptions: {

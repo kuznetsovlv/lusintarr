@@ -1,0 +1,24 @@
+@layer theme, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme) prefix(ltw);
+@import 'tailwindcss/utilities.css' layer(utilities) prefix(ltw);
+
+:root {
+  --lus-color-background: transparent;
+  --lus-color-foreground: inherit;
+  --lus-color-border: currentColor;
+  --lus-color-focus: currentColor;
+
+  --lus-radius-sm: 0.25rem;
+  --lus-radius-md: 0.5rem;
+}
+
+@theme inline {
+  --color-lus-background: var(--lus-color-background);
+  --color-lus-foreground: var(--lus-color-foreground);
+  --color-lus-border: var(--lus-color-border);
+  --color-lus-focus: var(--lus-color-focus);
+
+  --radius-lus-sm: var(--lus-radius-sm);
+  --radius-lus-md: var(--lus-radius-md);
+}
