@@ -8,24 +8,34 @@
   "private": false,
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
+    "eslint": "eslint .",
+    "eslint:fix": "eslint . --fix",
     "prettier": "prettier . --write",
     "prettier:check": "prettier . --check",
+    "format": "pnpm eslint:fix && pnpm prettier",
+    "format:check": "pnpm eslint && pnpm prettier:check",
     "typecheck": "tsc --noEmit"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.11.0",
     "prettier": "3.9.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.68.0",
     "vite": "^8.2.2"
   },
   "peerDependencies": {
