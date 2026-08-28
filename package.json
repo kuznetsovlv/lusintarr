@@ -6,6 +6,7 @@
   "author": "Leonid Kuznetsov",
   "type": "module",
   "private": false,
+  "packageManager": "pnpm@11.1.2",
   "files": [
     "dist"
   ],
