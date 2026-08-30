@@ -24,12 +24,14 @@ jobs:
 
     outputs:
       mode: ${{ steps.select-mode.outputs.mode }}
+      publish-plan-artifact-id: ${{ steps.select-mode.outputs.publish-plan-artifact-id }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -43,9 +45,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Show release state
+        run: |
+          echo "Local package version:"
+          node -p "require('./package.json').version"
+
+          echo "Published npm version:"
+          npm view lusintarr version
+
+          echo "Changesets publish plan:"
+          pnpm changeset publish-plan
+
       - name: Select release mode
         id: select-mode
         uses: changesets/action/select-mode@v2
+
+      - name: Show selected mode
+        run: |
+          echo "mode=${{ steps.select-mode.outputs.mode }}"
+          echo "publish-plan-artifact-id=${{ steps.select-mode.outputs.publish-plan-artifact-id }}"
+
+          echo "### Release mode: \`${{ steps.select-mode.outputs.mode }}\`" >> "$GITHUB_STEP_SUMMARY"
 
   version:
     name: Version packages
@@ -63,6 +83,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -89,8 +110,8 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
           script: pnpm version-packages
 
-  publish:
-    name: Publish package
+  pack:
+    name: Pack packages
     needs: select-mode
     if: needs.select-mode.outputs.mode == 'publish'
 
@@ -99,13 +120,16 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write
+
+    outputs:
+      pack-dir-artifact-id: ${{ steps.pack.outputs.pack-dir-artifact-id }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -114,7 +138,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
       - name: Install dependencies
@@ -123,7 +146,43 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Pack packages
+        id: pack
+        uses: changesets/action/pack@v2
+        with:
+          publish-plan-artifact-id: ${{ needs.select-mode.outputs.publish-plan-artifact-id }}
+
+  publish:
+    name: Publish package
+    needs: pack
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Publish to npm
         uses: changesets/action/publish@v2
         with:
-          script: pnpm changeset publish
+          pack-dir-artifact-id: ${{ needs.pack.outputs.pack-dir-artifact-id }}
