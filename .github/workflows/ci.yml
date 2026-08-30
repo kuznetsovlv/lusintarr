@@ -47,6 +47,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Check changesets
+        run: pnpm changeset status
+
       - name: Test with coverage
         run: pnpm test:coverage
 
