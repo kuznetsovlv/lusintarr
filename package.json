@@ -28,13 +28,18 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@storybook/addon-a11y": "^10.5.10",
+    "@storybook/addon-docs": "^10.5.10",
+    "@storybook/react-vite": "^10.5.10",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
@@ -53,6 +58,7 @@
     "prettier": "3.9.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "storybook": "^10.5.10",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.68.0",

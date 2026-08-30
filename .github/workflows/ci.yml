@@ -53,5 +53,8 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Build Storybook
+        run: pnpm storybook:build
+
       - name: Check package contents
         run: npm pack --dry-run
