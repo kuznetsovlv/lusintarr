@@ -6,7 +6,7 @@
     <img
       src="./logo/logo.png"
       alt="Bridgewire mascot"
-      width="320"
+      width="760"
     />
   </picture>
 </p>
