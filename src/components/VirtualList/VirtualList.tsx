@@ -1,10 +1,10 @@
 import type {FC, ComponentProps, ReactNode} from 'react';
-import {useRef} from 'react';
-import cn from 'classnames';
-import {useResizeObserver} from 'react-swissbit';
-import {tv} from 'tailwind-variants';
+import {useRef, useLayoutEffect, useState} from 'react';
+import {useResizeObserver, useHandler} from 'react-swissbit';
+import {getElementsContentBoxSize} from '@/utils';
 
 import List from './List';
+import {list} from './config';
 
 type OlType = NonNullable<ComponentProps<'ol'>['type']>;
 type UlType = 'none' | 'disc' | 'circle' | 'square';
@@ -22,22 +22,6 @@ const olTypeSet = new Set<Type>(olTypes);
 
 const DEFAULT_ESTIMATED_ITEM_HEIGHT = 40;
 
-const list = tv({
-  variants: {
-    type: {
-      none: 'ltw:list-none',
-      disc: 'ltw:list-disc',
-      circle: 'ltw:list-[circle]',
-      square: 'ltw:list-[square]',
-      '1': 'ltw:list-decimal',
-      A: 'ltw:list-[upper-alpha]',
-      a: 'ltw:list-[lower-alpha]',
-      I: 'ltw:list-[upper-roman]',
-      i: 'ltw:list-[lower-roman]',
-    },
-  },
-});
-
 export const VirtualList: FC<VirtualListProps> = ({
   className,
   type = 'none',
@@ -46,6 +30,33 @@ export const VirtualList: FC<VirtualListProps> = ({
 }) => {
   const ref = useRef<HTMLOListElement | HTMLUListElement>(null);
 
+  const [contentHeight, setContentHeight] = useState<number>(
+    ref.current ? getElementsContentBoxSize(ref.current).height : 0,
+  );
+
+  const listResizeHandler = useHandler((entries: ResizeObserverEntry[]) => {
+    if (entries.length) {
+      const {
+        contentRect: {height},
+      } = entries[0]!;
+
+      if (height !== contentHeight) {
+        setContentHeight(height);
+      }
+    }
+  });
+  const [observe, unobserve] = useResizeObserver(listResizeHandler);
+
+  useLayoutEffect(() => {
+    observe(ref);
+
+    if (ref.current) {
+      setContentHeight(getElementsContentBoxSize(ref.current).height);
+    }
+
+    return () => unobserve(ref);
+  }, []);
+
   const isListOrdered = olTypeSet.has(type);
 
   return (
@@ -53,6 +64,7 @@ export const VirtualList: FC<VirtualListProps> = ({
       className={list({type, className})}
       ordered={isListOrdered}
       listRef={ref}
+      onScroll={console.log}
     >
       {null}
     </List>

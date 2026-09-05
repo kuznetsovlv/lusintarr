@@ -2,6 +2,7 @@ import {fileURLToPath} from 'node:url';
 
 import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
+import {importX} from 'eslint-plugin-import-x';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import {defineConfig, includeIgnoreFile} from 'eslint/config';
@@ -33,6 +34,23 @@ export default defineConfig([
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
+    },
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+        },
+      ],
+
+      'import-x/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+
+      'no-duplicate-imports': [
+        'error',
+        {
+          allowSeparateTypeImports: true,
+        },
+      ],
     },
   },
 

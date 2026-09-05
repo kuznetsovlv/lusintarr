@@ -56,6 +56,7 @@
     "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.11.0",
     "jsdom": "^30.0.1",
@@ -81,7 +82,6 @@
   },
   "homepage": "https://github.com/kuznetsovlv/lusintarr#readme",
   "dependencies": {
-    "classnames": "^2.5.1",
     "react-swissbit": "^0.4.0",
     "tailwind-variants": "^3.3.1"
   }
