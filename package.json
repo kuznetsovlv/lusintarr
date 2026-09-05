@@ -79,5 +79,10 @@
   "bugs": {
     "url": "https://github.com/kuznetsovlv/lusintarr/issues"
   },
-  "homepage": "https://github.com/kuznetsovlv/lusintarr#readme"
+  "homepage": "https://github.com/kuznetsovlv/lusintarr#readme",
+  "dependencies": {
+    "classnames": "^2.5.1",
+    "react-swissbit": "^0.4.0",
+    "tailwind-variants": "^3.3.1"
+  }
 }
