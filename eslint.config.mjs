@@ -28,6 +28,9 @@ export default defineConfig([
       tseslint.configs.recommendedTypeChecked,
       reactHooks.configs.flat.recommended,
     ],
+    plugins: {
+      'import-x': importX,
+    },
     languageOptions: {
       globals: globals.browser,
       parserOptions: {

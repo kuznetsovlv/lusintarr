@@ -1,10 +1,16 @@
-import type {FC, ComponentProps, ReactNode} from 'react';
-import {useRef, useLayoutEffect, useState} from 'react';
-import {useResizeObserver, useHandler} from 'react-swissbit';
-import {getElementsContentBoxSize} from '@/utils';
+import type {FC, ComponentProps, ReactNode, UIEvent} from 'react';
+import {useRef, useState, useLayoutEffect} from 'react';
+import {
+  useResizeObserver,
+  useHandler,
+  useOnLayoutMount,
+  useOnUnmount,
+} from 'react-swissbit';
+import {getElementContentViewportSize} from '@/utils';
 
 import List from './List';
-import {list} from './config';
+import {list, viewport} from './config';
+import useRenderData from './useRenderData';
 
 type OlType = NonNullable<ComponentProps<'ol'>['type']>;
 type UlType = 'none' | 'disc' | 'circle' | 'square';
@@ -15,6 +21,7 @@ interface VirtualListProps {
   type?: Type;
   items?: ReactNode[];
   estimatedItemHeight?: number;
+  position?: 'inside' | 'outside';
 }
 
 const olTypes: OlType[] = ['1', 'A', 'a', 'I', 'i'];
@@ -27,46 +34,83 @@ export const VirtualList: FC<VirtualListProps> = ({
   type = 'none',
   items = [],
   estimatedItemHeight = DEFAULT_ESTIMATED_ITEM_HEIGHT,
+  position,
 }) => {
-  const ref = useRef<HTMLOListElement | HTMLUListElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLOListElement | HTMLUListElement>(null);
 
-  const [contentHeight, setContentHeight] = useState<number>(
-    ref.current ? getElementsContentBoxSize(ref.current).height : 0,
-  );
+  const [contentAreaHeight, setContentAreaHeight] = useState<number>(0);
+  const [scroll, setScroll] = useState<number>(0);
 
-  const listResizeHandler = useHandler((entries: ResizeObserverEntry[]) => {
+  const coverResizeHandler = useHandler((entries: ResizeObserverEntry[]) => {
     if (entries.length) {
       const {
         contentRect: {height},
       } = entries[0]!;
 
-      if (height !== contentHeight) {
-        setContentHeight(height);
+      if (height !== contentAreaHeight) {
+        setContentAreaHeight(height);
       }
     }
   });
-  const [observe, unobserve] = useResizeObserver(listResizeHandler);
+  const [coverObserve, coverUnobserve] = useResizeObserver(coverResizeHandler);
 
-  useLayoutEffect(() => {
-    observe(ref);
+  const listResizeHandler = useHandler(() => {
+    if (ref.current) {
+      const newContentAreaHeight = getElementContentViewportSize(
+        ref.current,
+      ).height;
+
+      if (newContentAreaHeight !== contentAreaHeight) {
+        setContentAreaHeight(newContentAreaHeight);
+      }
+    }
+  });
+  const [listObserve, listUnobserve] = useResizeObserver(listResizeHandler);
+
+  useOnLayoutMount(() => {
+    coverObserve(ref);
+    listObserve(listRef);
 
     if (ref.current) {
-      setContentHeight(getElementsContentBoxSize(ref.current).height);
+      setContentAreaHeight(getElementContentViewportSize(ref.current).height);
     }
+  });
 
-    return () => unobserve(ref);
-  }, []);
+  useOnUnmount(() => {
+    coverUnobserve(ref);
+    listUnobserve(listRef);
+  });
 
   const isListOrdered = olTypeSet.has(type);
 
+  const handleScroll = useHandler(({currentTarget}: UIEvent<HTMLDivElement>) =>
+    setScroll(currentTarget.scrollTop ?? 0),
+  );
+
+  const [itemList, start, fullHeight] = useRenderData({
+    items,
+    estimatedItemHeight,
+    scroll,
+    contentAreaHeight,
+  });
+
+  useLayoutEffect(() => {
+    if (listRef.current) {
+      listRef.current.style.height = `${fullHeight}px`;
+    }
+  }, [fullHeight]);
+
   return (
-    <List
-      className={list({type, className})}
-      ordered={isListOrdered}
-      listRef={ref}
-      onScroll={console.log}
-    >
-      {null}
-    </List>
+    <div className={viewport({className})} ref={ref} onScroll={handleScroll}>
+      <List
+        className={list({type, position})}
+        ordered={isListOrdered}
+        listRef={listRef}
+        start={start}
+      >
+        {itemList}
+      </List>
+    </div>
   );
 };

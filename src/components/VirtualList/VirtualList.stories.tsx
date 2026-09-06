@@ -20,7 +20,7 @@ const meta = {
   args: {
     type: 'none',
     estimatedItemHeight: 40,
-    className: 'ltw:border ltw:border-dashed ltw:p-2',
+    className: 'ltw:border ltw:border-dashed ltw:p-2 ltw:h-25',
   },
 
   argTypes: {
@@ -36,6 +36,11 @@ const meta = {
         max: 100,
         step: 5,
       },
+    },
+
+    position: {
+      control: 'select',
+      options: ['', 'inside', 'outside'],
     },
 
     items: {

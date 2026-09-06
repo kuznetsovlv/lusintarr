@@ -1,30 +1,15 @@
 import type {BoxSize} from '@/types';
 
-export function getElementsContentBoxSize(element: HTMLElement): BoxSize {
-  const {width: fullWidth, height: fullHeight} =
-    element.getBoundingClientRect();
-
-  const {
-    paddingTop,
-    paddingRight,
-    paddingBottom,
-    paddingLeft,
-    borderTopWidth,
-    borderRightWidth,
-    borderBottomWidth,
-    borderLeftWidth,
-  } = getComputedStyle(element);
+export function getElementContentViewportSize(element: HTMLElement): BoxSize {
+  const {paddingTop, paddingRight, paddingBottom, paddingLeft} =
+    getComputedStyle(element);
 
   return {
-    width:
-      fullWidth -
-      sumStr(paddingLeft, paddingRight, borderLeftWidth, borderRightWidth),
-    height:
-      fullHeight -
-      sumStr(paddingTop, paddingBottom, borderTopWidth, borderBottomWidth),
+    width: element.clientWidth - sumStr(paddingLeft, paddingRight),
+    height: element.clientHeight - sumStr(paddingTop, paddingBottom),
   };
 }
 
-function sumStr(...s: string[]): number {
-  return s.reduce((res, str) => res + parseFloat(str), 0);
+function sumStr(...values: string[]): number {
+  return values.reduce((sum, value) => sum + parseFloat(value), 0);
 }

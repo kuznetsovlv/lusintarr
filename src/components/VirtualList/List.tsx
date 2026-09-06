@@ -1,30 +1,24 @@
-import type {FC, ReactNode, Ref, UIEvent} from 'react';
+import type {FC, ReactNode, Ref} from 'react';
 
 interface ListProps {
   children: ReactNode;
   className: string;
   listRef: Ref<HTMLUListElement | HTMLOListElement>;
   ordered: boolean;
-  onScroll(event: UIEvent<HTMLUListElement | HTMLOListElement>): void;
+  start: number;
 }
 
-const List: FC<ListProps> = ({
-  children,
-  className,
-  listRef,
-  ordered,
-  onScroll,
-}) =>
+const List: FC<ListProps> = ({children, className, listRef, ordered, start}) =>
   ordered ? (
     <ol
       className={className}
-      onScroll={onScroll}
+      start={start}
       ref={listRef as Ref<HTMLOListElement>}
     >
       {children}
     </ol>
   ) : (
-    <ul className={className} onScroll={onScroll} ref={listRef}>
+    <ul className={className} ref={listRef}>
       {children}
     </ul>
   );
