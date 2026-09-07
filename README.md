@@ -139,11 +139,7 @@ const items = [
   <ArticlePreview article={article} />,
 ];
 
-<VirtualList
-  className="content-list"
-  items={items}
-  estimatedItemHeight={64}
-/>;
+<VirtualList className="content-list" items={items} estimatedItemHeight={64} />;
 ```
 
 `estimatedItemHeight` is only the initial estimate. Once an item is rendered,
@@ -199,17 +195,13 @@ Ordered types render a semantic `<ol>`. Unordered types render a semantic
 Marker position can also be controlled:
 
 ```tsx
-<VirtualList
-  type="1"
-  position="inside"
-  items={items}
-/>
+<VirtualList type="1" position="inside" items={items} />
 ```
 
 Supported values are:
 
 ```ts
-'inside' | 'outside'
+'inside' | 'outside';
 ```
 
 When `position` is omitted, the browser's default list marker position is
@@ -220,11 +212,7 @@ preserved.
 Use `startFrom` to change the ordinal of the first source item:
 
 ```tsx
-<VirtualList
-  type="1"
-  startFrom={100}
-  items={items}
-/>
+<VirtualList type="1" startFrom={100} items={items} />
 ```
 
 Virtualization preserves numbering even when earlier list items are currently
@@ -235,14 +223,14 @@ the corresponding ordered list begins at `104`.
 
 ### Props
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `items` | `ReactNode[]` | `[]` | Items contained in the virtual list. |
-| `estimatedItemHeight` | `number` | `40` | Initial estimated item height in CSS pixels. |
-| `type` | `'none' \| 'disc' \| 'circle' \| 'square' \| '1' \| 'A' \| 'a' \| 'I' \| 'i'` | `'none'` | Determines the marker style and whether the semantic list is a `ul` or `ol`. |
-| `position` | `'inside' \| 'outside'` | browser default | Controls list marker positioning. |
-| `startFrom` | `number` | `1` | Ordinal assigned to the first source item of an ordered list. |
-| `className` | `string` | — | CSS class applied to the scrollable viewport. |
+| Prop                  | Type                                                                          | Default         | Description                                                                  |
+| --------------------- | ----------------------------------------------------------------------------- | --------------- | ---------------------------------------------------------------------------- |
+| `items`               | `ReactNode[]`                                                                 | `[]`            | Items contained in the virtual list.                                         |
+| `estimatedItemHeight` | `number`                                                                      | `40`            | Initial estimated item height in CSS pixels.                                 |
+| `type`                | `'none' \| 'disc' \| 'circle' \| 'square' \| '1' \| 'A' \| 'a' \| 'I' \| 'i'` | `'none'`        | Determines the marker style and whether the semantic list is a `ul` or `ol`. |
+| `position`            | `'inside' \| 'outside'`                                                       | browser default | Controls list marker positioning.                                            |
+| `startFrom`           | `number`                                                                      | `1`             | Ordinal assigned to the first source item of an ordered list.                |
+| `className`           | `string`                                                                      | —               | CSS class applied to the scrollable viewport.                                |
 
 ### Notes
 
