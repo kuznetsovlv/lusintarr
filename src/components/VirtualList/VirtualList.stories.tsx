@@ -64,8 +64,15 @@ const meta = {
   args: {
     type: 'none',
     position: 'outside',
+    startFrom: 1,
     estimatedItemHeight: 40,
     className: 'ltw:border ltw:border-dashed ltw:p-2 ltw:h-64',
+  },
+
+  parameters: {
+    controls: {
+      sort: 'none',
+    },
   },
 
   argTypes: {
@@ -79,13 +86,26 @@ const meta = {
       options: ['inside', 'outside'],
     },
 
+    startFrom: {
+      control: {
+        type: 'range',
+        min: -10,
+        max: 10,
+        step: 1,
+      },
+    },
+
     estimatedItemHeight: {
       control: {
         type: 'range',
-        min: 20,
+        min: 0,
         max: 100,
         step: 5,
       },
+    },
+
+    className: {
+      control: 'text',
     },
 
     items: {

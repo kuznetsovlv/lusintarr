@@ -1,9 +1,23 @@
 import {tv} from 'tailwind-variants';
 
+/**
+ * Styles the VirtualList viewport.
+ *
+ * The viewport provides native browser scrolling on both axes. Its actual
+ * available size is measured by VirtualList and used to determine which items
+ * should be rendered.
+ */
 export const viewport = tv({
   base: 'ltw:overflow-auto',
 });
 
+/**
+ * Styles the semantic `ul` or `ol` element used as the virtual list canvas.
+ *
+ * The list establishes a relative positioning context for virtualized items
+ * while preserving the browser's inline padding for outside list markers.
+ * Inline padding is removed when markers are absent or positioned inside.
+ */
 export const list = tv({
   base: [
     'ltw:relative',
