@@ -142,3 +142,45 @@ export const WithItems: Story = {
     </div>
   ),
 };
+
+/**
+ * Provides different initial height estimates for items in the demo.
+ *
+ * Every third item is expected to be taller than the others.
+ */
+const getEstimatedItemHeight = (index: number): number =>
+  index % 3 === 0 ? 80 : 40;
+
+export const PerItemEstimatedHeight: Story = {
+  args: {
+    type: '1',
+    position: 'outside',
+  },
+
+  parameters: {
+    controls: {
+      exclude: ['estimatedItemHeight'],
+    },
+    docs: {
+      description: {
+        story:
+          'Uses a function to provide different initial height estimates for individual items.',
+      },
+    },
+  },
+
+  render: (args) => (
+    <div>
+      <p className="ltw:mb-3">
+        Click any of the first eight items to expand or collapse it. The last
+        two items are long plain-text examples for comparing list marker
+        positioning with block and inline content.
+      </p>
+      <VirtualList
+        {...args}
+        items={items}
+        estimatedItemHeight={getEstimatedItemHeight}
+      />
+    </div>
+  ),
+};

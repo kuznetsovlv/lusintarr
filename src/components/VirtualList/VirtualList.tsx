@@ -11,6 +11,7 @@ import {getElementContentViewportSize} from '@/utils';
 import List from './List';
 import {list, viewport} from './config';
 import useRenderData from './useRenderData';
+import type {VirtualListEstimatedItemHeight} from './types';
 
 /** Marker types supported by native ordered HTML lists. */
 type OlType = NonNullable<ComponentProps<'ol'>['type']>;
@@ -52,12 +53,18 @@ export interface VirtualListProps {
   /**
    * Estimated item height in CSS pixels.
    *
-   * The estimate is used until an item is rendered and its actual height can
-   * be measured.
+   * A number applies the same initial estimate to every unmeasured item.
+   * A function receives the zero-based source item index and can provide a
+   * different estimate for each item.
+   *
+   * Once an item is rendered, its actual measured height takes precedence over
+   * the estimate.
+   *
+   * Negative estimates are normalized to zero.
    *
    * @defaultValue `40`
    */
-  estimatedItemHeight?: number;
+  estimatedItemHeight?: VirtualListEstimatedItemHeight;
 
   /**
    * Position of list markers relative to item content.

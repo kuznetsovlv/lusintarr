@@ -3,10 +3,11 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {VirtualList} from './VirtualList';
+import type {VirtualListEstimatedItemHeight} from './types';
 
 interface RenderDataSource {
   items: ReactNode[];
-  estimatedItemHeight: number;
+  estimatedItemHeight: VirtualListEstimatedItemHeight;
   scroll: number;
   contentAreaHeight: number;
 }
@@ -364,5 +365,21 @@ describe('VirtualList', () => {
         current: semanticList,
       }),
     );
+  });
+
+  it('passes a per-item estimated height getter to useRenderData', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+    const estimatedItemHeight = (index: number) => 30 + index * 10;
+
+    render(
+      <VirtualList items={items} estimatedItemHeight={estimatedItemHeight} />,
+    );
+
+    expect(mocks.useRenderData).toHaveBeenLastCalledWith({
+      items,
+      estimatedItemHeight,
+      scroll: 0,
+      contentAreaHeight: 0,
+    });
   });
 });

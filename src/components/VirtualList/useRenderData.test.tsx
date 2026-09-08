@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react';
 import {isValidElement} from 'react';
 import {act, renderHook} from '@testing-library/react';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 
 import useRenderData, {getShift, useHeightMap} from './useRenderData';
 
@@ -339,5 +339,79 @@ describe('useRenderData', () => {
     expect(list).toEqual([]);
     expect(start).toBe(3);
     expect(fullHeight).toBe(120);
+  });
+
+  it('uses a per-item estimated height getter for unmeasured items', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+    const estimatedItemHeight = vi.fn((index: number) => 20 + index * 10);
+
+    const {result} = renderHook(() => useHeightMap(items, estimatedItemHeight));
+
+    expect(result.current[0]).toEqual([20, 30, 40]);
+    expect(result.current[1]).toBe(90);
+
+    expect(estimatedItemHeight).toHaveBeenCalledWith(0);
+    expect(estimatedItemHeight).toHaveBeenCalledWith(1);
+    expect(estimatedItemHeight).toHaveBeenCalledWith(2);
+  });
+
+  it('replaces a per-item estimate with a measured height', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+    const estimatedItemHeight = (index: number) => 20 + index * 10;
+
+    const {result} = renderHook(() => useHeightMap(items, estimatedItemHeight));
+
+    act(() => {
+      result.current[2](75, 1);
+    });
+
+    expect(result.current[0]).toEqual([20, 75, 40]);
+    expect(result.current[1]).toBe(135);
+  });
+
+  it('keeps measured heights when the estimate getter changes', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+
+    const firstEstimate = (index: number) => 20 + index * 10;
+    const secondEstimate = (index: number) => 50 + index * 10;
+
+    const {result, rerender} = renderHook(
+      ({estimatedItemHeight}) => useHeightMap(items, estimatedItemHeight),
+      {
+        initialProps: {
+          estimatedItemHeight: firstEstimate,
+        },
+      },
+    );
+
+    act(() => {
+      result.current[2](75, 1);
+    });
+
+    expect(result.current[0]).toEqual([20, 75, 40]);
+
+    rerender({
+      estimatedItemHeight: secondEstimate,
+    });
+
+    expect(result.current[0]).toEqual([50, 75, 70]);
+    expect(result.current[1]).toBe(195);
+  });
+
+  it('normalizes negative values returned by the estimate getter to zero', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+
+    const {result} = renderHook(() =>
+      useHeightMap(items, (index) => {
+        if (index === 1) {
+          return -20;
+        }
+
+        return 40;
+      }),
+    );
+
+    expect(result.current[0]).toEqual([40, 0, 40]);
+    expect(result.current[1]).toBe(80);
   });
 });

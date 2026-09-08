@@ -83,8 +83,9 @@ It is intended for lists where rendering the complete item set would create
 unnecessary React and DOM work.
 
 Unlike fixed-size virtual lists, `VirtualList` does not require the exact item
-height to be known in advance. It starts with an estimated height and replaces
-that estimate with actual measurements as items are rendered.
+height to be known in advance. It starts with either a shared height estimate
+or a per-item estimate and replaces those estimates with actual measurements
+as items are rendered.
 
 ### Basic usage
 
@@ -156,6 +157,33 @@ Examples include:
 - text wrapping after a width change;
 - images or other content changing the size of an existing item.
 
+### Per-item height estimates
+
+If different items are expected to have significantly different heights,
+`estimatedItemHeight` can also be a function:
+
+```tsx
+const getEstimatedItemHeight = (index: number) => (index % 3 === 0 ? 80 : 40);
+
+<VirtualList
+  className="content-list"
+  items={items}
+  estimatedItemHeight={getEstimatedItemHeight}
+/>;
+```
+
+The function receives the zero-based index of the item in the source array and
+returns its estimated height in CSS pixels.
+
+The estimate is used only while the actual item height is unknown. Once an
+item is rendered and measured, its measured height takes precedence.
+
+This is useful when the application already knows that some kinds of items are
+typically taller or shorter than others.
+
+Negative estimates, whether supplied directly or returned by the function, are
+normalized to `0`.
+
 ### Native scrolling
 
 `VirtualList` uses the browser's native scrolling rather than implementing a
@@ -223,14 +251,14 @@ the corresponding ordered list begins at `104`.
 
 ### Props
 
-| Prop                  | Type                                                                          | Default         | Description                                                                  |
-| --------------------- | ----------------------------------------------------------------------------- | --------------- | ---------------------------------------------------------------------------- |
-| `items`               | `ReactNode[]`                                                                 | `[]`            | Items contained in the virtual list.                                         |
-| `estimatedItemHeight` | `number`                                                                      | `40`            | Initial estimated item height in CSS pixels.                                 |
-| `type`                | `'none' \| 'disc' \| 'circle' \| 'square' \| '1' \| 'A' \| 'a' \| 'I' \| 'i'` | `'none'`        | Determines the marker style and whether the semantic list is a `ul` or `ol`. |
-| `position`            | `'inside' \| 'outside'`                                                       | browser default | Controls list marker positioning.                                            |
-| `startFrom`           | `number`                                                                      | `1`             | Ordinal assigned to the first source item of an ordered list.                |
-| `className`           | `string`                                                                      | —               | CSS class applied to the scrollable viewport.                                |
+| Prop                  | Type                                                                          | Default         | Description                                                                                                   |
+| --------------------- | ----------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------- |
+| `items`               | `ReactNode[]`                                                                 | `[]`            | Items contained in the virtual list.                                                                          |
+| `estimatedItemHeight` | `number \| ((index: number) => number)`                                       | `40`            | Initial height estimate for unmeasured items. A getter can provide a different estimate for each source item. |
+| `type`                | `'none' \| 'disc' \| 'circle' \| 'square' \| '1' \| 'A' \| 'a' \| 'I' \| 'i'` | `'none'`        | Determines the marker style and whether the semantic list is a `ul` or `ol`.                                  |
+| `position`            | `'inside' \| 'outside'`                                                       | browser default | Controls list marker positioning.                                                                             |
+| `startFrom`           | `number`                                                                      | `1`             | Ordinal assigned to the first source item of an ordered list.                                                 |
+| `className`           | `string`                                                                      | —               | CSS class applied to the scrollable viewport.                                                                 |
 
 ### Notes
 
@@ -241,9 +269,14 @@ mutating the same array instance in place.
 The component currently virtualizes the vertical axis. Horizontal overflow,
 when present, uses the browser's native horizontal scrolling.
 
-`estimatedItemHeight` does not need to be exact, but an estimate reasonably
-close to typical item heights gives the list a more accurate initial scroll
+`estimatedItemHeight` does not need to be exact. An estimate reasonably close
+to the expected item heights gives the list a more accurate initial scroll
 range before measurements become available.
+
+When a function is used, its identity is part of the height-map calculation.
+For frequently re-rendering parents, prefer passing a stable function when
+practical. Measured item heights are preserved when the estimate changes;
+only unmeasured items use the new estimate.
 
 ## Styling
 
@@ -273,7 +306,8 @@ The `VirtualList` story includes examples with:
 - variable-height items;
 - items that change height interactively;
 - long inline content;
-- configurable estimated item height and numbering.
+- fixed and per-item height estimates;
+- configurable ordered-list numbering.
 
 ## Development
 

@@ -2,6 +2,7 @@ import type {ReactNode} from 'react';
 import {useState, useMemo, useDeferredValue} from 'react';
 import {useHandler} from 'react-swissbit';
 import Item from './Item';
+import type {VirtualListEstimatedItemHeight} from './types';
 
 /**
  * Reports a measured item height.
@@ -20,10 +21,12 @@ interface ListSource {
   items: ReactNode[];
 
   /**
-   * Initial height estimate, in CSS pixels, used for items that have not yet
-   * been measured.
+   * Initial height estimate used for items that have not yet been measured.
+   *
+   * May be either a fixed height or a getter receiving the zero-based item
+   * index.
    */
-  estimatedItemHeight: number;
+  estimatedItemHeight: VirtualListEstimatedItemHeight;
 
   /** Current vertical scroll offset in CSS pixels. */
   scroll: number;
@@ -109,24 +112,23 @@ export default function useRenderData({
 }
 
 /**
- * Maintains the current height estimate for every item in a virtual list.
+ * Builds and maintains the height map used for virtualization.
  *
- * Measured values replace `estimatedItemHeight` as items become available in
- * the DOM. Measurements are reset when a different items array is supplied.
+ * Measured item heights take precedence over estimates. Unmeasured items use
+ * either the fixed estimated height or the value returned by the per-item
+ * estimate getter.
  *
- * Negative estimated heights are normalized to zero.
+ * Measurements are reset when the source items array changes.
  *
- * @param items - Current source items.
- * @param estimatedItemHeight - Initial height estimate in CSS pixels.
- * @returns The effective height map, estimated total list height, and a
- * callback for reporting measured item heights.
+ * @param items - Source items represented by the height map.
+ * @param estimatedItemHeight - Fixed or per-item initial height estimate.
+ * @returns The current height map, its total height, and a callback for
+ * reporting measured item heights.
  */
 export function useHeightMap(
   items: ReactNode[],
-  estimatedItemHeight: number,
+  estimatedItemHeight: VirtualListEstimatedItemHeight,
 ): [number[], number, SetItemHeightCallback] {
-  const normalizedEstimatedItemHeight = Math.max(0, estimatedItemHeight);
-
   const [measurements, setMeasurements] = useState<Measurements>(() => ({
     items,
     heights: new Array(items.length) as (number | undefined)[],
@@ -134,7 +136,9 @@ export function useHeightMap(
 
   const heightMap = useMemo(() => {
     if (measurements.items !== items) {
-      return items.map(() => normalizedEstimatedItemHeight);
+      return items.map((_, index) =>
+        getEstimatedHeightValue(estimatedItemHeight, index),
+      );
     }
 
     const heights: number[] = [];
@@ -142,11 +146,14 @@ export function useHeightMap(
     // `measurements.heights` may be sparse. Array.prototype.map() skips empty
     // slots, so use an indexed loop to produce a dense height map.
     for (let i = 0; i < measurements.heights.length; ++i) {
-      heights.push(measurements.heights[i] ?? normalizedEstimatedItemHeight);
+      heights.push(
+        measurements.heights[i] ??
+          getEstimatedHeightValue(estimatedItemHeight, i),
+      );
     }
 
     return heights;
-  }, [measurements, normalizedEstimatedItemHeight, items]);
+  }, [measurements, estimatedItemHeight, items]);
 
   const fullHeight = useMemo(
     () => heightMap.reduce((s, h) => s + h, 0),
@@ -218,4 +225,27 @@ export function getShift(
   }
 
   return [start, shift];
+}
+
+/**
+ * Returns the normalized estimated height for an item.
+ *
+ * If a fixed estimate is provided, the same value is used for every item.
+ * Otherwise the estimate getter is called with the item's zero-based index.
+ * Negative values are normalized to zero.
+ *
+ * @param estimatedItemHeight - Fixed or per-item height estimate.
+ * @param index - Zero-based index of the item in the source array.
+ * @returns Normalized estimated item height in CSS pixels.
+ */
+function getEstimatedHeightValue(
+  estimatedItemHeight: VirtualListEstimatedItemHeight,
+  index: number,
+): number {
+  const value =
+    typeof estimatedItemHeight === 'number'
+      ? estimatedItemHeight
+      : estimatedItemHeight(index);
+
+  return Math.max(0, value);
 }
