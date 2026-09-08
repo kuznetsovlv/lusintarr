@@ -63,7 +63,7 @@ export interface VirtualListProps {
    */
   position?: 'inside' | 'outside';
 
-  markPlaceSize?: number;
+  markerSpaceSize?: number;
 
   /**
    * Ordinal assigned to the first source item of an ordered list.
@@ -105,7 +105,7 @@ export const VirtualList: FC<VirtualListProps> = ({
   items = [],
   estimatedItemHeight = DEFAULT_ESTIMATED_ITEM_HEIGHT,
   position,
-  markPlaceSize,
+  markerSpaceSize,
   startFrom = DEFAULT_START_FROM,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -198,8 +198,8 @@ export const VirtualList: FC<VirtualListProps> = ({
   }, [fullHeight]);
 
   const listStyle =
-    markPlaceSize !== undefined && type !== 'none' && position !== 'inside'
-      ? {paddingInlineStart: markPlaceSize}
+    markerSpaceSize !== undefined && type !== 'none' && position !== 'inside'
+      ? {paddingInlineStart: markerSpaceSize}
       : undefined;
 
   const listType = typeof type === 'function' ? 'custom' : type;
