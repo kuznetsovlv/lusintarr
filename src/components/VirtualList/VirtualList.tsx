@@ -1,4 +1,4 @@
-import type {FC, ComponentProps, ReactNode, UIEvent} from 'react';
+import type {FC, ReactNode, UIEvent} from 'react';
 import {useRef, useState, useLayoutEffect} from 'react';
 import {
   useResizeObserver,
@@ -11,21 +11,11 @@ import {getElementContentViewportSize} from '@/utils';
 import List from './List';
 import {list, viewport} from './config';
 import useRenderData from './useRenderData';
-import type {VirtualListEstimatedItemHeight} from './types';
-
-/** Marker types supported by native ordered HTML lists. */
-type OlType = NonNullable<ComponentProps<'ol'>['type']>;
-
-/** Marker types supported by unordered VirtualList instances. */
-type UlType = 'none' | 'disc' | 'circle' | 'square';
-
-/**
- * List marker type.
- *
- * Ordered-list marker types cause VirtualList to render an `ol`; unordered
- * marker types cause it to render a `ul`.
- */
-type Type = OlType | UlType;
+import type {
+  VirtualListEstimatedItemHeight,
+  VirtualListType,
+  VirtualListOlType,
+} from './types';
 
 export interface VirtualListProps {
   /** CSS class applied to the scrollable viewport element. */
@@ -39,7 +29,7 @@ export interface VirtualListProps {
    *
    * @defaultValue `"none"`
    */
-  type?: Type;
+  type?: VirtualListType;
 
   /**
    * React nodes contained in the list.
@@ -73,6 +63,8 @@ export interface VirtualListProps {
    */
   position?: 'inside' | 'outside';
 
+  markPlaceSize?: number;
+
   /**
    * Ordinal assigned to the first source item of an ordered list.
    *
@@ -85,10 +77,10 @@ export interface VirtualListProps {
 }
 
 /** Ordered-list marker types recognized by VirtualList. */
-const olTypes: OlType[] = ['1', 'A', 'a', 'I', 'i'];
+const olTypes: VirtualListOlType[] = ['1', 'A', 'a', 'I', 'i'];
 
 /** Lookup used to determine whether the semantic list should be an `ol`. */
-const olTypeSet = new Set<Type>(olTypes);
+const olTypeSet = new Set<VirtualListType>(olTypes);
 
 /** Default height estimate for items that have not yet been measured. */
 const DEFAULT_ESTIMATED_ITEM_HEIGHT = 40;
@@ -113,6 +105,7 @@ export const VirtualList: FC<VirtualListProps> = ({
   items = [],
   estimatedItemHeight = DEFAULT_ESTIMATED_ITEM_HEIGHT,
   position,
+  markPlaceSize,
   startFrom = DEFAULT_START_FROM,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -189,6 +182,8 @@ export const VirtualList: FC<VirtualListProps> = ({
     estimatedItemHeight,
     scroll,
     contentAreaHeight,
+    type,
+    position,
   });
 
   /*
@@ -202,13 +197,21 @@ export const VirtualList: FC<VirtualListProps> = ({
     }
   }, [fullHeight]);
 
+  const listStyle =
+    markPlaceSize !== undefined && type !== 'none' && position !== 'inside'
+      ? {paddingInlineStart: markPlaceSize}
+      : undefined;
+
+  const listType = typeof type === 'function' ? 'custom' : type;
+
   return (
     <div className={viewport({className})} ref={ref} onScroll={handleScroll}>
       <List
-        className={list({type, position})}
+        className={list({type: listType, position})}
         ordered={isListOrdered}
         listRef={listRef}
         start={start + startFrom}
+        style={listStyle}
       >
         {itemList}
       </List>

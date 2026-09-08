@@ -1,4 +1,4 @@
-import type {FC, ReactNode, Ref} from 'react';
+import type {FC, ReactNode, Ref, CSSProperties} from 'react';
 
 interface ListProps {
   /** List items currently rendered by VirtualList. */
@@ -20,6 +20,8 @@ interface ListProps {
    * when virtualization omits preceding items from the DOM.
    */
   start: number;
+
+  style?: CSSProperties;
 }
 
 /**
@@ -29,17 +31,25 @@ interface ListProps {
  * their numbering reflects the position of the first currently rendered
  * item. Unordered lists are rendered as `ul`.
  */
-const List: FC<ListProps> = ({children, className, listRef, ordered, start}) =>
+const List: FC<ListProps> = ({
+  children,
+  className,
+  listRef,
+  ordered,
+  start,
+  style,
+}) =>
   ordered ? (
     <ol
       className={className}
       start={start}
+      style={style}
       ref={listRef as Ref<HTMLOListElement>}
     >
       {children}
     </ol>
   ) : (
-    <ul className={className} ref={listRef}>
+    <ul className={className} style={style} ref={listRef}>
       {children}
     </ul>
   );

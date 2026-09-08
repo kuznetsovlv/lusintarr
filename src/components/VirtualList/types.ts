@@ -1,3 +1,5 @@
+import type {ComponentProps, FC} from 'react';
+
 /**
  * Returns an estimated height for a VirtualList item.
  *
@@ -20,3 +22,22 @@ export type VirtualListEstimatedItemHeightGetter = (index: number) => number;
  */
 export type VirtualListEstimatedItemHeight =
   number | VirtualListEstimatedItemHeightGetter;
+
+export interface VirtualListMarkerProps {
+  index: number;
+}
+
+/** Marker types supported by native ordered HTML lists. */
+export type VirtualListOlType = NonNullable<ComponentProps<'ol'>['type']>;
+
+/** Marker types supported by unordered VirtualList instances. */
+export type VirtualListUlType = 'none' | 'disc' | 'circle' | 'square';
+
+/**
+ * List marker type.
+ *
+ * Ordered-list marker types cause VirtualList to render an `ol`; unordered
+ * marker types cause it to render a `ul`.
+ */
+export type VirtualListType =
+  VirtualListOlType | VirtualListUlType | FC<VirtualListMarkerProps>;

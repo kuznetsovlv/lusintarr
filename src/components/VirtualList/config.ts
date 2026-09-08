@@ -41,6 +41,7 @@ export const list = tv({
       a: 'ltw:list-[lower-alpha]',
       I: 'ltw:list-[upper-roman]',
       i: 'ltw:list-[lower-roman]',
+      custom: 'ltw:list-none',
     },
     position: {
       inside: 'ltw:list-inside',

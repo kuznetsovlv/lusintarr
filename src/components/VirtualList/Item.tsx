@@ -6,6 +6,7 @@ import {
   useOnLayoutMount,
   useOnUnmount,
 } from 'react-swissbit';
+import type {VirtualListMarkerProps} from './types';
 
 interface ItemProps {
   /** Content rendered inside the list item. */
@@ -16,6 +17,10 @@ interface ItemProps {
 
   /** Vertical offset of the item from the top of the virtual list canvas. */
   shift: number;
+
+  Marker?: FC<VirtualListMarkerProps>;
+
+  position: 'inside' | 'outside';
 
   /**
    * Called when the item's rendered height is measured or changes.
@@ -33,7 +38,14 @@ interface ItemProps {
  * `shift` as its vertical offset. Its rendered height is measured immediately
  * after layout and monitored for subsequent changes with ResizeObserver.
  */
-const Item: FC<ItemProps> = ({children, index, shift, onResize}) => {
+const Item: FC<ItemProps> = ({
+  children,
+  index,
+  shift,
+  Marker,
+  position,
+  onResize,
+}) => {
   const ref = useRef<HTMLLIElement>(null);
 
   /**
@@ -71,6 +83,19 @@ const Item: FC<ItemProps> = ({children, index, shift, onResize}) => {
       style={{top: `${shift}px`}}
       ref={ref}
     >
+      {!!Marker && (
+        <span
+          aria-hidden="true"
+          className="ltw:bg-transparent"
+          style={
+            position === 'outside'
+              ? {position: 'absolute', insetInlineEnd: '100%'}
+              : undefined
+          }
+        >
+          <Marker index={index} />
+        </span>
+      )}
       {children}
     </li>
   );

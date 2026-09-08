@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 import {useState, useMemo, useDeferredValue} from 'react';
 import {useHandler} from 'react-swissbit';
 import Item from './Item';
-import type {VirtualListEstimatedItemHeight} from './types';
+import type {VirtualListEstimatedItemHeight, VirtualListType} from './types';
 
 /**
  * Reports a measured item height.
@@ -33,6 +33,10 @@ interface ListSource {
 
   /** Height of the visible content area in CSS pixels. */
   contentAreaHeight: number;
+
+  type: VirtualListType;
+
+  position?: 'inside' | 'outside';
 }
 
 /**
@@ -67,6 +71,8 @@ export default function useRenderData({
   estimatedItemHeight,
   scroll,
   contentAreaHeight,
+  type,
+  position = 'outside',
 }: ListSource): [list: ReactNode[], start: number, fullHeight: number] {
   const [heightMap, fullHeight, setItemHeight] = useHeightMap(
     items,
@@ -87,6 +93,8 @@ export default function useRenderData({
         <Item
           key={i}
           index={i}
+          Marker={typeof type === 'function' ? type : undefined}
+          position={position}
           shift={height + deferredScroll}
           onResize={setItemHeight}
         >
@@ -108,6 +116,8 @@ export default function useRenderData({
     contentAreaHeight,
     setItemHeight,
     fullHeight,
+    position,
+    type,
   ]);
 }
 
