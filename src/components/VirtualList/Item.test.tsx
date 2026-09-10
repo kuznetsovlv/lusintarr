@@ -3,8 +3,13 @@ import {render, screen} from '@testing-library/react';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import Item from './Item';
+import type {VirtualListMarkerProps} from './types';
 
 type ListItemRef = RefObject<HTMLLIElement | null>;
+
+const Marker = ({index}: VirtualListMarkerProps) => (
+  <span data-testid="custom-marker">Marker {index}</span>
+);
 
 const mocks = vi.hoisted(() => ({
   observe: vi.fn<(ref: ListItemRef) => void>(),
@@ -79,7 +84,7 @@ describe('Item', () => {
     mockElementHeight(40);
 
     render(
-      <Item index={2} shift={120} onResize={vi.fn()}>
+      <Item index={2} shift={120} position="outside" onResize={vi.fn()}>
         Earth
       </Item>,
     );
@@ -98,7 +103,7 @@ describe('Item', () => {
     const onResize = vi.fn();
 
     render(
-      <Item index={3} shift={0} onResize={onResize}>
+      <Item index={3} shift={0} position="outside" onResize={onResize}>
         Mars
       </Item>,
     );
@@ -120,7 +125,7 @@ describe('Item', () => {
     const onResize = vi.fn();
 
     render(
-      <Item index={4} shift={0} onResize={onResize}>
+      <Item index={4} shift={0} position="outside" onResize={onResize}>
         Jupiter
       </Item>,
     );
@@ -143,7 +148,7 @@ describe('Item', () => {
     const onResize = vi.fn();
 
     render(
-      <Item index={5} shift={0} onResize={onResize}>
+      <Item index={5} shift={0} position="outside" onResize={onResize}>
         Saturn
       </Item>,
     );
@@ -159,7 +164,7 @@ describe('Item', () => {
     mockElementHeight(40);
 
     const {unmount} = render(
-      <Item index={6} shift={0} onResize={vi.fn()}>
+      <Item index={6} shift={0} position="outside" onResize={vi.fn()}>
         Uranus
       </Item>,
     );
@@ -180,5 +185,80 @@ describe('Item', () => {
 
     expect(mocks.unobserve).toHaveBeenCalledTimes(1);
     expect(mocks.unobserve).toHaveBeenCalledWith(observedRef);
+  });
+
+  it('renders a custom marker with the source item index', () => {
+    render(
+      <Item
+        index={4}
+        shift={0}
+        Marker={Marker}
+        position="outside"
+        onResize={vi.fn()}
+      >
+        Jupiter
+      </Item>,
+    );
+
+    expect(screen.getByTestId('custom-marker')).toHaveTextContent('Marker 4');
+  });
+
+  it('hides a custom marker from assistive technologies', () => {
+    render(
+      <Item
+        index={2}
+        shift={0}
+        Marker={Marker}
+        position="outside"
+        onResize={vi.fn()}
+      >
+        Earth
+      </Item>,
+    );
+
+    const marker = screen.getByTestId('custom-marker');
+    const markerContainer = marker.parentElement;
+
+    expect(markerContainer).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('positions an outside custom marker before the item inline start', () => {
+    render(
+      <Item
+        index={1}
+        shift={0}
+        Marker={Marker}
+        position="outside"
+        onResize={vi.fn()}
+      >
+        Venus
+      </Item>,
+    );
+
+    const markerContainer = screen.getByTestId('custom-marker').parentElement;
+
+    expect(markerContainer).not.toBeNull();
+    expect(markerContainer!.style.position).toBe('absolute');
+    expect(markerContainer!.style.insetInlineEnd).toBe('100%');
+  });
+
+  it('keeps an inside custom marker in the normal item flow', () => {
+    render(
+      <Item
+        index={1}
+        shift={0}
+        Marker={Marker}
+        position="inside"
+        onResize={vi.fn()}
+      >
+        Venus
+      </Item>,
+    );
+
+    const markerContainer = screen.getByTestId('custom-marker').parentElement;
+
+    expect(markerContainer).not.toBeNull();
+    expect(markerContainer!.style.position).toBe('');
+    expect(markerContainer!.style.insetInlineEnd).toBe('');
   });
 });

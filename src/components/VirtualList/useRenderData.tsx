@@ -34,8 +34,16 @@ interface ListSource {
   /** Height of the visible content area in CSS pixels. */
   contentAreaHeight: number;
 
+  /**
+   * Marker type or custom marker component used by rendered items.
+   */
   type: VirtualListType;
 
+  /**
+   * Marker position passed to visible items.
+   *
+   * @defaultValue `"outside"`
+   */
   position?: 'inside' | 'outside';
 }
 
@@ -55,16 +63,20 @@ interface Measurements {
 }
 
 /**
- * Calculates the React nodes and layout metadata required to render the
- * currently visible portion of a virtual list.
+ * Calculates and renders the subset of VirtualList items required to cover
+ * the visible content area.
  *
- * Scroll updates are deferred so that rendering based on the scroll position
- * can lag behind more urgent updates. Unmeasured items use
- * `estimatedItemHeight` until their actual height is reported by Item.
+ * Item positions are derived from measured or estimated heights. Scroll
+ * updates are deferred so rendering based on the scroll position can lag
+ * behind more urgent updates.
  *
- * @param source - List items, estimated dimensions, and current viewport state.
- * @returns The rendered items, zero-based index of the first rendered item,
- * and estimated total height of the complete list.
+ * When `type` is a custom marker component, it is passed to every rendered
+ * item together with the resolved marker position.
+ *
+ * @param source - Source items, measurements, scroll state, and marker
+ * configuration.
+ * @returns Rendered items, zero-based index of the first rendered item, and
+ * the estimated full list height.
  */
 export default function useRenderData({
   items,

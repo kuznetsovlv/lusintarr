@@ -22,10 +22,13 @@ export interface VirtualListProps {
   className?: string;
 
   /**
-   * Marker type used by the list.
+   * Marker type or custom marker component.
    *
    * Ordered marker types (`"1"`, `"A"`, `"a"`, `"I"`, `"i"`) render an
-   * `ol`. Other values render a `ul`.
+   * `ol`. Unordered marker types render a `ul`.
+   *
+   * A React component can be provided instead to render a custom decorative
+   * marker for each visible item.
    *
    * @defaultValue `"none"`
    */
@@ -57,12 +60,27 @@ export interface VirtualListProps {
   estimatedItemHeight?: VirtualListEstimatedItemHeight;
 
   /**
-   * Position of list markers relative to item content.
+   * Position of the list marker relative to item content.
    *
-   * When omitted, the browser's default `list-style-position` is preserved.
+   * Applies to both built-in and custom markers. Custom markers positioned
+   * outside are rendered immediately before the item's inline-start edge.
+   *
+   * When omitted, outside positioning is used for custom markers while built-in
+   * markers retain the browser's default positioning.
    */
   position?: 'inside' | 'outside';
 
+  /**
+   * Inline space reserved for an outside list marker, in CSS pixels.
+   *
+   * When provided, the value overrides the list's default inline-start padding
+   * while markers are positioned outside. This can be useful for custom markers
+   * that need more or less space than the browser normally reserves.
+   *
+   * The value has no effect when markers are disabled or positioned inside.
+   *
+   * When omitted, the browser's default list padding is preserved.
+   */
   markerSpaceSize?: number;
 
   /**

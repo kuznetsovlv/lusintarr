@@ -23,7 +23,15 @@ export type VirtualListEstimatedItemHeightGetter = (index: number) => number;
 export type VirtualListEstimatedItemHeight =
   number | VirtualListEstimatedItemHeightGetter;
 
+/**
+ * Props passed to a custom VirtualList marker component.
+ *
+ * Custom markers are decorative and are hidden from assistive technologies.
+ * They should not contain interactive or otherwise semantically meaningful
+ * content.
+ */
 export interface VirtualListMarkerProps {
+  /** Zero-based index of the corresponding item in the source array. */
   index: number;
 }
 
@@ -34,10 +42,14 @@ export type VirtualListOlType = NonNullable<ComponentProps<'ol'>['type']>;
 export type VirtualListUlType = 'none' | 'disc' | 'circle' | 'square';
 
 /**
- * List marker type.
+ * Marker configuration used by VirtualList.
  *
- * Ordered-list marker types cause VirtualList to render an `ol`; unordered
- * marker types cause it to render a `ul`.
+ * String values select one of the built-in ordered or unordered list marker
+ * styles. A React component can be provided to render a custom decorative
+ * marker for each visible item.
+ *
+ * Custom marker components receive the zero-based source item index through
+ * {@link VirtualListMarkerProps}.
  */
 export type VirtualListType =
   VirtualListOlType | VirtualListUlType | FC<VirtualListMarkerProps>;

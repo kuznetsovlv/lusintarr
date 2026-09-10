@@ -1,14 +1,17 @@
-import type {ReactNode} from 'react';
+import type {FC, ReactNode} from 'react';
 import {isValidElement} from 'react';
 import {act, renderHook} from '@testing-library/react';
 import {describe, expect, it, vi} from 'vitest';
 
+import type {VirtualListMarkerProps} from './types';
 import useRenderData, {getShift, useHeightMap} from './useRenderData';
 
 interface RenderedItemProps {
   children: ReactNode;
   index: number;
   shift: number;
+  Marker?: FC<VirtualListMarkerProps>;
+  position: 'inside' | 'outside';
 }
 
 function getRenderedItemProps(node: ReactNode): RenderedItemProps {
@@ -218,6 +221,7 @@ describe('useRenderData', () => {
         estimatedItemHeight: 40,
         scroll: 0,
         contentAreaHeight: 100,
+        type: 'none',
       }),
     );
 
@@ -258,6 +262,7 @@ describe('useRenderData', () => {
         estimatedItemHeight: 40,
         scroll: 50,
         contentAreaHeight: 100,
+        type: 'none',
       }),
     );
 
@@ -295,6 +300,7 @@ describe('useRenderData', () => {
         estimatedItemHeight: 40,
         scroll: 0,
         contentAreaHeight: 500,
+        type: 'none',
       }),
     );
 
@@ -312,6 +318,7 @@ describe('useRenderData', () => {
         estimatedItemHeight: 40,
         scroll: 0,
         contentAreaHeight: 100,
+        type: 'none',
       }),
     );
 
@@ -331,6 +338,7 @@ describe('useRenderData', () => {
         estimatedItemHeight: 40,
         scroll: 200,
         contentAreaHeight: 100,
+        type: 'none',
       }),
     );
 
@@ -413,5 +421,58 @@ describe('useRenderData', () => {
 
     expect(result.current[0]).toEqual([40, 0, 40]);
     expect(result.current[1]).toBe(80);
+  });
+
+  it('passes a custom marker to rendered items with outside positioning by default', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+
+    const Marker: FC<VirtualListMarkerProps> = ({index}) => (
+      <span>{index}</span>
+    );
+
+    const {result} = renderHook(() =>
+      useRenderData({
+        items,
+        estimatedItemHeight: 40,
+        scroll: 0,
+        contentAreaHeight: 100,
+        type: Marker,
+      }),
+    );
+
+    const renderedItems = result.current[0];
+
+    expect(renderedItems.length).toBeGreaterThan(0);
+
+    for (const item of renderedItems) {
+      const props = getRenderedItemProps(item);
+
+      expect(props.Marker).toBe(Marker);
+      expect(props.position).toBe('outside');
+    }
+  });
+
+  it('passes inside marker positioning to rendered items', () => {
+    const items: ReactNode[] = ['Mercury'];
+
+    const Marker: FC<VirtualListMarkerProps> = ({index}) => (
+      <span>{index}</span>
+    );
+
+    const {result} = renderHook(() =>
+      useRenderData({
+        items,
+        estimatedItemHeight: 40,
+        scroll: 0,
+        contentAreaHeight: 100,
+        type: Marker,
+        position: 'inside',
+      }),
+    );
+
+    const props = getRenderedItemProps(result.current[0][0]);
+
+    expect(props.Marker).toBe(Marker);
+    expect(props.position).toBe('inside');
   });
 });

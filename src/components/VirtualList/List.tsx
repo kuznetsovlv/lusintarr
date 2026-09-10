@@ -21,6 +21,12 @@ interface ListProps {
    */
   start: number;
 
+  /**
+   * Inline styles applied to the semantic `ul` or `ol` element.
+   *
+   * VirtualList currently uses this to override the space reserved for outside
+   * list markers.
+   */
   style?: CSSProperties;
 }
 
