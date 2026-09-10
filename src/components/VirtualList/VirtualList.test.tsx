@@ -180,6 +180,8 @@ describe('VirtualList', () => {
       estimatedItemHeight: 64,
       scroll: 0,
       contentAreaHeight: 0,
+      type: 'none',
+      position: undefined,
     });
   });
 
@@ -243,6 +245,8 @@ describe('VirtualList', () => {
       estimatedItemHeight: 40,
       scroll: 0,
       contentAreaHeight: 200,
+      type: 'none',
+      position: undefined,
     });
   });
 
@@ -261,6 +265,8 @@ describe('VirtualList', () => {
       estimatedItemHeight: 40,
       scroll: 75,
       contentAreaHeight: 0,
+      type: 'none',
+      position: undefined,
     });
   });
 
@@ -380,6 +386,8 @@ describe('VirtualList', () => {
       estimatedItemHeight,
       scroll: 0,
       contentAreaHeight: 0,
+      type: 'none',
+      position: undefined,
     });
   });
 });
