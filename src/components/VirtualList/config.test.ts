@@ -51,4 +51,26 @@ describe('list', () => {
   ] as const)('applies the "%s" marker position', (position, expectedClass) => {
     expect(list({position})).toContain(expectedClass);
   });
+
+  it('preserves marker space for an outside custom marker', () => {
+    const className = list({
+      type: 'custom',
+      position: 'outside',
+    });
+
+    expect(className).toContain('ltw:list-none');
+    expect(className).toContain('ltw:list-outside');
+    expect(className).not.toContain('ltw:ps-0');
+  });
+
+  it('removes marker space for an inside custom marker', () => {
+    const className = list({
+      type: 'custom',
+      position: 'inside',
+    });
+
+    expect(className).toContain('ltw:list-none');
+    expect(className).toContain('ltw:list-inside');
+    expect(className).toContain('ltw:ps-0');
+  });
 });

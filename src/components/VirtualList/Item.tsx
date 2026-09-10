@@ -6,22 +6,39 @@ import {
   useOnLayoutMount,
   useOnUnmount,
 } from 'react-swissbit';
+import type {VirtualListMarkerProps} from './types';
 
 interface ItemProps {
   /** Content rendered inside the list item. */
   children: ReactNode;
 
-  /** Index of the item in the source VirtualList items array. */
+  /** Zero-based index of the item in the source array. */
   index: number;
 
   /** Vertical offset of the item from the top of the virtual list canvas. */
   shift: number;
 
   /**
+   * Optional custom decorative marker component rendered for this item.
+   *
+   * The marker receives the item's zero-based source index and is hidden from
+   * assistive technologies.
+   */
+  Marker?: FC<VirtualListMarkerProps>;
+
+  /**
+   * Position of a custom marker relative to the item content.
+   *
+   * Outside markers are absolutely positioned immediately before the item's
+   * inline-start edge. Inside markers remain in the normal item content flow.
+   */
+  position: 'inside' | 'outside';
+
+  /**
    * Called when the item's rendered height is measured or changes.
    *
-   * @param height - Current rendered height of the item in CSS pixels.
-   * @param index - Index of the item in the source VirtualList items array.
+   * @param height - Current rendered item height in CSS pixels.
+   * @param index - Zero-based index of the item in the source array.
    */
   onResize: (height: number, index: number) => void;
 }
@@ -29,11 +46,22 @@ interface ItemProps {
 /**
  * Renders and measures a single visible VirtualList item.
  *
- * The item is absolutely positioned inside the virtual list canvas using
+ * The item is absolutely positioned within the virtual list canvas using
  * `shift` as its vertical offset. Its rendered height is measured immediately
  * after layout and monitored for subsequent changes with ResizeObserver.
+ *
+ * When provided, a custom decorative marker is rendered before the item
+ * content. Outside markers are positioned independently of the measured item
+ * width and do not contribute to the item's measured size.
  */
-const Item: FC<ItemProps> = ({children, index, shift, onResize}) => {
+const Item: FC<ItemProps> = ({
+  children,
+  index,
+  shift,
+  Marker,
+  position,
+  onResize,
+}) => {
   const ref = useRef<HTMLLIElement>(null);
 
   /**
@@ -71,6 +99,19 @@ const Item: FC<ItemProps> = ({children, index, shift, onResize}) => {
       style={{top: `${shift}px`}}
       ref={ref}
     >
+      {!!Marker && (
+        <span
+          aria-hidden="true"
+          className="ltw:bg-transparent"
+          style={
+            position === 'outside'
+              ? {position: 'absolute', insetInlineEnd: '100%'}
+              : undefined
+          }
+        >
+          <Marker index={index} />
+        </span>
+      )}
       {children}
     </li>
   );

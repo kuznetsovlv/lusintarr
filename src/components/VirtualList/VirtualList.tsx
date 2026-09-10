@@ -1,4 +1,4 @@
-import type {FC, ComponentProps, ReactNode, UIEvent} from 'react';
+import type {FC, ReactNode, UIEvent} from 'react';
 import {useRef, useState, useLayoutEffect} from 'react';
 import {
   useResizeObserver,
@@ -11,34 +11,28 @@ import {getElementContentViewportSize} from '@/utils';
 import List from './List';
 import {list, viewport} from './config';
 import useRenderData from './useRenderData';
-
-/** Marker types supported by native ordered HTML lists. */
-type OlType = NonNullable<ComponentProps<'ol'>['type']>;
-
-/** Marker types supported by unordered VirtualList instances. */
-type UlType = 'none' | 'disc' | 'circle' | 'square';
-
-/**
- * List marker type.
- *
- * Ordered-list marker types cause VirtualList to render an `ol`; unordered
- * marker types cause it to render a `ul`.
- */
-type Type = OlType | UlType;
+import type {
+  VirtualListEstimatedItemHeight,
+  VirtualListType,
+  VirtualListOlType,
+} from './types';
 
 export interface VirtualListProps {
   /** CSS class applied to the scrollable viewport element. */
   className?: string;
 
   /**
-   * Marker type used by the list.
+   * Marker type or custom marker component.
    *
    * Ordered marker types (`"1"`, `"A"`, `"a"`, `"I"`, `"i"`) render an
-   * `ol`. Other values render a `ul`.
+   * `ol`. Unordered marker types render a `ul`.
+   *
+   * A React component can be provided instead to render a custom decorative
+   * marker for each visible item.
    *
    * @defaultValue `"none"`
    */
-  type?: Type;
+  type?: VirtualListType;
 
   /**
    * React nodes contained in the list.
@@ -52,19 +46,42 @@ export interface VirtualListProps {
   /**
    * Estimated item height in CSS pixels.
    *
-   * The estimate is used until an item is rendered and its actual height can
-   * be measured.
+   * A number applies the same initial estimate to every unmeasured item.
+   * A function receives the zero-based source item index and can provide a
+   * different estimate for each item.
+   *
+   * Once an item is rendered, its actual measured height takes precedence over
+   * the estimate.
+   *
+   * Negative estimates are normalized to zero.
    *
    * @defaultValue `40`
    */
-  estimatedItemHeight?: number;
+  estimatedItemHeight?: VirtualListEstimatedItemHeight;
 
   /**
-   * Position of list markers relative to item content.
+   * Position of the list marker relative to item content.
    *
-   * When omitted, the browser's default `list-style-position` is preserved.
+   * Applies to both built-in and custom markers. Custom markers positioned
+   * outside are rendered immediately before the item's inline-start edge.
+   *
+   * When omitted, outside positioning is used for custom markers while built-in
+   * markers retain the browser's default positioning.
    */
   position?: 'inside' | 'outside';
+
+  /**
+   * Inline space reserved for an outside list marker, in CSS pixels.
+   *
+   * When provided, the value overrides the list's default inline-start padding
+   * while markers are positioned outside. This can be useful for custom markers
+   * that need more or less space than the browser normally reserves.
+   *
+   * The value has no effect when markers are disabled or positioned inside.
+   *
+   * When omitted, the browser's default list padding is preserved.
+   */
+  markerSpaceSize?: number;
 
   /**
    * Ordinal assigned to the first source item of an ordered list.
@@ -78,10 +95,10 @@ export interface VirtualListProps {
 }
 
 /** Ordered-list marker types recognized by VirtualList. */
-const olTypes: OlType[] = ['1', 'A', 'a', 'I', 'i'];
+const olTypes: VirtualListOlType[] = ['1', 'A', 'a', 'I', 'i'];
 
 /** Lookup used to determine whether the semantic list should be an `ol`. */
-const olTypeSet = new Set<Type>(olTypes);
+const olTypeSet = new Set<VirtualListType>(olTypes);
 
 /** Default height estimate for items that have not yet been measured. */
 const DEFAULT_ESTIMATED_ITEM_HEIGHT = 40;
@@ -106,6 +123,7 @@ export const VirtualList: FC<VirtualListProps> = ({
   items = [],
   estimatedItemHeight = DEFAULT_ESTIMATED_ITEM_HEIGHT,
   position,
+  markerSpaceSize,
   startFrom = DEFAULT_START_FROM,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -182,6 +200,8 @@ export const VirtualList: FC<VirtualListProps> = ({
     estimatedItemHeight,
     scroll,
     contentAreaHeight,
+    type,
+    position,
   });
 
   /*
@@ -195,13 +215,21 @@ export const VirtualList: FC<VirtualListProps> = ({
     }
   }, [fullHeight]);
 
+  const listStyle =
+    markerSpaceSize !== undefined && type !== 'none' && position !== 'inside'
+      ? {paddingInlineStart: markerSpaceSize}
+      : undefined;
+
+  const listType = typeof type === 'function' ? 'custom' : type;
+
   return (
     <div className={viewport({className})} ref={ref} onScroll={handleScroll}>
       <List
-        className={list({type, position})}
+        className={list({type: listType, position})}
         ordered={isListOrdered}
         listRef={listRef}
         start={start + startFrom}
+        style={listStyle}
       >
         {itemList}
       </List>

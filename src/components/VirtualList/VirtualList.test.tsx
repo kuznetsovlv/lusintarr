@@ -3,10 +3,14 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {VirtualList} from './VirtualList';
+import type {
+  VirtualListEstimatedItemHeight,
+  VirtualListMarkerProps,
+} from './types';
 
 interface RenderDataSource {
   items: ReactNode[];
-  estimatedItemHeight: number;
+  estimatedItemHeight: VirtualListEstimatedItemHeight;
   scroll: number;
   contentAreaHeight: number;
 }
@@ -179,6 +183,8 @@ describe('VirtualList', () => {
       estimatedItemHeight: 64,
       scroll: 0,
       contentAreaHeight: 0,
+      type: 'none',
+      position: undefined,
     });
   });
 
@@ -242,6 +248,8 @@ describe('VirtualList', () => {
       estimatedItemHeight: 40,
       scroll: 0,
       contentAreaHeight: 200,
+      type: 'none',
+      position: undefined,
     });
   });
 
@@ -260,6 +268,8 @@ describe('VirtualList', () => {
       estimatedItemHeight: 40,
       scroll: 75,
       contentAreaHeight: 0,
+      type: 'none',
+      position: undefined,
     });
   });
 
@@ -364,5 +374,84 @@ describe('VirtualList', () => {
         current: semanticList,
       }),
     );
+  });
+
+  it('passes a per-item estimated height getter to useRenderData', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+    const estimatedItemHeight = (index: number) => 30 + index * 10;
+
+    render(
+      <VirtualList items={items} estimatedItemHeight={estimatedItemHeight} />,
+    );
+
+    expect(mocks.useRenderData).toHaveBeenLastCalledWith({
+      items,
+      estimatedItemHeight,
+      scroll: 0,
+      contentAreaHeight: 0,
+      type: 'none',
+      position: undefined,
+    });
+  });
+
+  it('uses a custom marker type as an unordered list', () => {
+    const Marker = ({index}: VirtualListMarkerProps) => <span>{index}</span>;
+
+    render(<VirtualList type={Marker} />);
+
+    const semanticList = screen.getByRole('list');
+
+    expect(semanticList.tagName).toBe('UL');
+    expect(semanticList).toHaveClass('ltw:list-none');
+
+    expect(mocks.useRenderData).toHaveBeenLastCalledWith({
+      items: [],
+      estimatedItemHeight: 40,
+      scroll: 0,
+      contentAreaHeight: 0,
+      type: Marker,
+      position: undefined,
+    });
+  });
+
+  it('sets markerSpaceSize for an outside marker', () => {
+    render(<VirtualList type="disc" position="outside" markerSpaceSize={48} />);
+
+    expect(screen.getByRole('list').style.paddingInlineStart).toBe('48px');
+  });
+
+  it('sets markerSpaceSize when marker position is omitted', () => {
+    render(<VirtualList type="disc" markerSpaceSize={52} />);
+
+    expect(screen.getByRole('list').style.paddingInlineStart).toBe('52px');
+  });
+
+  it('sets markerSpaceSize for a custom marker', () => {
+    const Marker = ({index}: VirtualListMarkerProps) => <span>{index}</span>;
+
+    render(<VirtualList type={Marker} markerSpaceSize={64} />);
+
+    const semanticList = screen.getByRole('list');
+
+    expect(semanticList.style.paddingInlineStart).toBe('64px');
+    expect(semanticList).toHaveClass('ltw:list-none');
+  });
+
+  it('does not apply markerSpaceSize to inside markers', () => {
+    render(<VirtualList type="disc" position="inside" markerSpaceSize={48} />);
+
+    expect(screen.getByRole('list').style.paddingInlineStart).toBe('');
+  });
+
+  it('does not apply markerSpaceSize when markers are disabled', () => {
+    render(<VirtualList type="none" markerSpaceSize={48} />);
+
+    expect(screen.getByRole('list').style.paddingInlineStart).toBe('');
+  });
+
+  it('does not override marker space when markerSpaceSize is omitted', () => {
+    render(<VirtualList type="disc" position="outside" />);
+
+    expect(screen.getByRole('list').style.paddingInlineStart).toBe('');
   });
 });

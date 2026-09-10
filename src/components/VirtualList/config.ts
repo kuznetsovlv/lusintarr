@@ -41,6 +41,8 @@ export const list = tv({
       a: 'ltw:list-[lower-alpha]',
       I: 'ltw:list-[upper-roman]',
       i: 'ltw:list-[lower-roman]',
+      // Suppresses the native marker while preserving list padding for a custom one.
+      custom: 'ltw:list-none',
     },
     position: {
       inside: 'ltw:list-inside',
