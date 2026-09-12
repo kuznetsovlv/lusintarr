@@ -17,17 +17,18 @@ const DemoItem = ({name, height}: DemoItemProps) => {
     <button
       type="button"
       aria-expanded={expanded}
-      className={[
-        'ltw:w-full',
-        'ltw:border',
-        'ltw:border-solid',
-        'ltw:rounded-sm',
-        'ltw:px-2',
-        'ltw:py-1',
-        'ltw:text-left',
-        'ltw:bg-transparent',
-        'ltw:cursor-pointer',
-      ].join(' ')}
+      // className={[
+      //   'ltw:w-full',
+      //   'ltw:border',
+      //   'ltw:border-solid',
+      //   'ltw:rounded-sm',
+      //   'ltw:px-2',
+      //   'ltw:py-1',
+      //   'ltw:text-left',
+      //   'ltw:bg-transparent',
+      //   'ltw:cursor-pointer',
+      // ].join(' ')}
+      className="ltw:w-full ltw:rounded-md ltw:border ltw:border-violet-300 ltw:bg-white ltw:-px-3 ltw:py-2 ltw:text-left ltw:shadow-sm"
       style={{
         minHeight: expanded ? height * 2 : height,
       }}
@@ -84,7 +85,9 @@ const meta = {
     startFrom: 1,
     markerSpaceSize: 40,
     estimatedItemHeight: 40,
-    className: 'ltw:border ltw:border-dashed ltw:p-2 ltw:h-64',
+    // className: 'ltw:border ltw:border-dashed ltw:p-2 ltw:h-64',
+    className:
+      'ltw:h-64 ltw:rounded-lg ltw:border ltw:border-violet-300 ltw:bg-violet-50/40 ltw:p-3',
     useMarkerSpaceSize: true,
   },
 
