@@ -26,7 +26,7 @@ describe('useHeightMap', () => {
   it('uses the estimated height for unmeasured items', () => {
     const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
 
-    const {result} = renderHook(() => useHeightMap(items, 40));
+    const {result} = renderHook(() => useHeightMap(items, 40, false));
 
     expect(result.current[0]).toEqual([40, 40, 40]);
     expect(result.current[1]).toBe(120);
@@ -35,7 +35,7 @@ describe('useHeightMap', () => {
   it('normalizes a negative estimated height to zero', () => {
     const items: ReactNode[] = ['Mercury', 'Venus'];
 
-    const {result} = renderHook(() => useHeightMap(items, -40));
+    const {result} = renderHook(() => useHeightMap(items, -40, false));
 
     expect(result.current[0]).toEqual([0, 0]);
     expect(result.current[1]).toBe(0);
@@ -44,7 +44,7 @@ describe('useHeightMap', () => {
   it('replaces an estimated height with a measured height', () => {
     const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
 
-    const {result} = renderHook(() => useHeightMap(items, 40));
+    const {result} = renderHook(() => useHeightMap(items, 40, false));
 
     act(() => {
       result.current[2](64, 1);
@@ -57,7 +57,7 @@ describe('useHeightMap', () => {
   it('stores a measurement in an initially sparse height map', () => {
     const items: ReactNode[] = ['Mercury', 'Venus', 'Earth', 'Mars'];
 
-    const {result} = renderHook(() => useHeightMap(items, 40));
+    const {result} = renderHook(() => useHeightMap(items, 40, false));
 
     act(() => {
       result.current[2](75, 2);
@@ -70,7 +70,7 @@ describe('useHeightMap', () => {
   it('updates an existing measurement', () => {
     const items: ReactNode[] = ['Mercury', 'Venus'];
 
-    const {result} = renderHook(() => useHeightMap(items, 40));
+    const {result} = renderHook(() => useHeightMap(items, 40, false));
 
     act(() => {
       result.current[2](60, 0);
@@ -92,7 +92,7 @@ describe('useHeightMap', () => {
 
     const {result, rerender} = renderHook(
       ({estimatedItemHeight}: {estimatedItemHeight: number}) =>
-        useHeightMap(items, estimatedItemHeight),
+        useHeightMap(items, estimatedItemHeight, false),
       {
         initialProps: {
           estimatedItemHeight: 40,
@@ -119,7 +119,7 @@ describe('useHeightMap', () => {
     const nextItems: ReactNode[] = ['Earth', 'Mars', 'Jupiter'];
 
     const {result, rerender} = renderHook(
-      ({items}: {items: ReactNode[]}) => useHeightMap(items, 40),
+      ({items}: {items: ReactNode[]}) => useHeightMap(items, 40, false),
       {
         initialProps: {
           items: firstItems,
@@ -146,7 +146,7 @@ describe('useHeightMap', () => {
     const nextItems: ReactNode[] = ['Earth', 'Mars', 'Jupiter'];
 
     const {result, rerender} = renderHook(
-      ({items}: {items: ReactNode[]}) => useHeightMap(items, 40),
+      ({items}: {items: ReactNode[]}) => useHeightMap(items, 40, false),
       {
         initialProps: {
           items: firstItems,
@@ -171,7 +171,7 @@ describe('useHeightMap', () => {
   });
 
   it('handles an empty items array', () => {
-    const {result} = renderHook(() => useHeightMap([], 40));
+    const {result} = renderHook(() => useHeightMap([], 40, false));
 
     expect(result.current[0]).toEqual([]);
     expect(result.current[1]).toBe(0);
@@ -222,6 +222,7 @@ describe('useRenderData', () => {
         scroll: 0,
         contentAreaHeight: 100,
         type: 'none',
+        useAverageHeight: false,
       }),
     );
 
@@ -263,6 +264,7 @@ describe('useRenderData', () => {
         scroll: 50,
         contentAreaHeight: 100,
         type: 'none',
+        useAverageHeight: false,
       }),
     );
 
@@ -301,6 +303,7 @@ describe('useRenderData', () => {
         scroll: 0,
         contentAreaHeight: 500,
         type: 'none',
+        useAverageHeight: false,
       }),
     );
 
@@ -319,6 +322,7 @@ describe('useRenderData', () => {
         scroll: 0,
         contentAreaHeight: 100,
         type: 'none',
+        useAverageHeight: false,
       }),
     );
 
@@ -339,6 +343,7 @@ describe('useRenderData', () => {
         scroll: 200,
         contentAreaHeight: 100,
         type: 'none',
+        useAverageHeight: false,
       }),
     );
 
@@ -353,7 +358,9 @@ describe('useRenderData', () => {
     const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
     const estimatedItemHeight = vi.fn((index: number) => 20 + index * 10);
 
-    const {result} = renderHook(() => useHeightMap(items, estimatedItemHeight));
+    const {result} = renderHook(() =>
+      useHeightMap(items, estimatedItemHeight, false),
+    );
 
     expect(result.current[0]).toEqual([20, 30, 40]);
     expect(result.current[1]).toBe(90);
@@ -367,7 +374,9 @@ describe('useRenderData', () => {
     const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
     const estimatedItemHeight = (index: number) => 20 + index * 10;
 
-    const {result} = renderHook(() => useHeightMap(items, estimatedItemHeight));
+    const {result} = renderHook(() =>
+      useHeightMap(items, estimatedItemHeight, false),
+    );
 
     act(() => {
       result.current[2](75, 1);
@@ -384,7 +393,8 @@ describe('useRenderData', () => {
     const secondEstimate = (index: number) => 50 + index * 10;
 
     const {result, rerender} = renderHook(
-      ({estimatedItemHeight}) => useHeightMap(items, estimatedItemHeight),
+      ({estimatedItemHeight}) =>
+        useHeightMap(items, estimatedItemHeight, false),
       {
         initialProps: {
           estimatedItemHeight: firstEstimate,
@@ -410,13 +420,17 @@ describe('useRenderData', () => {
     const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
 
     const {result} = renderHook(() =>
-      useHeightMap(items, (index) => {
-        if (index === 1) {
-          return -20;
-        }
+      useHeightMap(
+        items,
+        (index) => {
+          if (index === 1) {
+            return -20;
+          }
 
-        return 40;
-      }),
+          return 40;
+        },
+        false,
+      ),
     );
 
     expect(result.current[0]).toEqual([40, 0, 40]);
@@ -437,6 +451,7 @@ describe('useRenderData', () => {
         scroll: 0,
         contentAreaHeight: 100,
         type: Marker,
+        useAverageHeight: false,
       }),
     );
 
@@ -467,6 +482,7 @@ describe('useRenderData', () => {
         contentAreaHeight: 100,
         type: Marker,
         position: 'inside',
+        useAverageHeight: false,
       }),
     );
 
@@ -474,5 +490,60 @@ describe('useRenderData', () => {
 
     expect(props.Marker).toBe(Marker);
     expect(props.position).toBe('inside');
+  });
+
+  it('uses the default estimate before any items have been measured', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+
+    const {result} = renderHook(() => useHeightMap(items, 40, true));
+
+    expect(result.current[0]).toEqual([40, 40, 40]);
+    expect(result.current[1]).toBe(120);
+  });
+
+  it('blends unmeasured estimates with the average measured height', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth', 'Mars'];
+
+    const {result} = renderHook(() => useHeightMap(items, 40, true));
+
+    act(() => {
+      result.current[2](80, 0);
+    });
+
+    // One of four items is measured:
+    // weight = 1 / 4
+    // estimate = 40 * 0.75 + 80 * 0.25 = 50
+    expect(result.current[0]).toEqual([80, 50, 50, 50]);
+    expect(result.current[1]).toBe(230);
+  });
+
+  it('increases the influence of measured average as more items are measured', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth', 'Mars'];
+
+    const {result} = renderHook(() => useHeightMap(items, 40, true));
+
+    act(() => {
+      result.current[2](60, 0);
+      result.current[2](100, 1);
+    });
+
+    // average = 80
+    // weight = 2 / 4 = 0.5
+    // unmeasured = 40 * 0.5 + 80 * 0.5 = 60
+    expect(result.current[0]).toEqual([60, 100, 60, 60]);
+    expect(result.current[1]).toBe(280);
+  });
+
+  it('does not adjust estimates when average-height refinement is disabled', () => {
+    const items: ReactNode[] = ['Mercury', 'Venus', 'Earth'];
+
+    const {result} = renderHook(() => useHeightMap(items, 40, false));
+
+    act(() => {
+      result.current[2](80, 0);
+    });
+
+    expect(result.current[0]).toEqual([80, 40, 40]);
+    expect(result.current[1]).toBe(160);
   });
 });

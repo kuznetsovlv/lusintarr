@@ -184,6 +184,22 @@ typically taller or shorter than others.
 Negative estimates, whether supplied directly or returned by the function, are
 normalized to `0`.
 
+### Automatic estimate refinement
+
+When `estimatedItemHeight` is omitted, `VirtualList` starts with a default
+estimate of `40px`.
+
+As item heights are measured, estimates for items that have not yet been
+rendered are gradually adjusted toward the average measured height. The
+measured average gains more influence as a larger portion of the list becomes
+known.
+
+Measured heights always take precedence over estimates.
+
+If `estimatedItemHeight` is provided explicitly — either as a number or as a
+per-item getter — automatic refinement is disabled and the supplied estimates
+are preserved until actual measurements become available.
+
 ### Native scrolling
 
 `VirtualList` uses the browser's native scrolling rather than implementing a
@@ -308,15 +324,15 @@ the corresponding ordered list begins at `104`.
 
 ### Props
 
-| Prop                  | Type                                                                                                        | Default         | Description                                                                                                   |
-| --------------------- | ----------------------------------------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------- |
-| `items`               | `ReactNode[]`                                                                                               | `[]`            | Items contained in the virtual list.                                                                          |
-| `estimatedItemHeight` | `number \| ((index: number) => number)`                                                                     | `40`            | Initial height estimate for unmeasured items. A getter can provide a different estimate for each source item. |
-| `type`                | `'none' \| 'disc' \| 'circle' \| 'square' \| '1' \| 'A' \| 'a' \| 'I' \| 'i' \| FC<VirtualListMarkerProps>` | `'none'`        | Selects a built-in marker style or a custom decorative marker component.                                      |
-| `position`            | `'inside' \| 'outside'`                                                                                     | browser default | Controls built-in and custom marker positioning.                                                              |
-| `markerSpaceSize`     | `number`                                                                                                    | browser default | Overrides the inline space reserved for outside markers, in CSS pixels.                                       |
-| `startFrom`           | `number`                                                                                                    | `1`             | Ordinal assigned to the first source item of an ordered list.                                                 |
-| `className`           | `string`                                                                                                    | —               | CSS class applied to the scrollable viewport.                                                                 |
+| Prop                  | Type                                                                                                        | Default         | Description                                                                                                                 |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `items`               | `ReactNode[]`                                                                                               | `[]`            | Items contained in the virtual list.                                                                                        |
+| `estimatedItemHeight` | `number \| ((index: number) => number)`                                                                     | `40`            | Initial estimate for unmeasured items. When omitted, the default estimate is gradually refined using measured item heights. |
+| `type`                | `'none' \| 'disc' \| 'circle' \| 'square' \| '1' \| 'A' \| 'a' \| 'I' \| 'i' \| FC<VirtualListMarkerProps>` | `'none'`        | Selects a built-in marker style or a custom decorative marker component.                                                    |
+| `position`            | `'inside' \| 'outside'`                                                                                     | browser default | Controls built-in and custom marker positioning.                                                                            |
+| `markerSpaceSize`     | `number`                                                                                                    | browser default | Overrides the inline space reserved for outside markers, in CSS pixels.                                                     |
+| `startFrom`           | `number`                                                                                                    | `1`             | Ordinal assigned to the first source item of an ordered list.                                                               |
+| `className`           | `string`                                                                                                    | —               | CSS class applied to the scrollable viewport.                                                                               |
 
 ### Notes
 

@@ -185,6 +185,7 @@ describe('VirtualList', () => {
       contentAreaHeight: 0,
       type: 'none',
       position: undefined,
+      useAverageHeight: false,
     });
   });
 
@@ -250,6 +251,7 @@ describe('VirtualList', () => {
       contentAreaHeight: 200,
       type: 'none',
       position: undefined,
+      useAverageHeight: true,
     });
   });
 
@@ -270,6 +272,7 @@ describe('VirtualList', () => {
       contentAreaHeight: 0,
       type: 'none',
       position: undefined,
+      useAverageHeight: true,
     });
   });
 
@@ -391,6 +394,7 @@ describe('VirtualList', () => {
       contentAreaHeight: 0,
       type: 'none',
       position: undefined,
+      useAverageHeight: false,
     });
   });
 
@@ -411,6 +415,7 @@ describe('VirtualList', () => {
       contentAreaHeight: 0,
       type: Marker,
       position: undefined,
+      useAverageHeight: true,
     });
   });
 
