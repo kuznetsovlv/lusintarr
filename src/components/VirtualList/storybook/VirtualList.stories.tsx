@@ -1,9 +1,9 @@
 import type {Meta, StoryObj} from '@storybook/react-vite';
 import {useState} from 'react';
 
-import {VirtualList} from './VirtualList';
-import type {VirtualListProps} from './VirtualList';
-import type {VirtualListMarkerProps} from './types';
+import {VirtualList} from '../VirtualList';
+import type {VirtualListProps} from '../VirtualList';
+import type {VirtualListMarkerProps} from '../types';
 
 interface DemoItemProps {
   name: string;

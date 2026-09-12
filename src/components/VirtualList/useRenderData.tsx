@@ -17,7 +17,7 @@ type SetItemHeightCallback = (height: number, index: number) => void;
  * portion of a virtual list.
  */
 interface ListSource {
-  /** Items contained in the virtual list. */
+  /** Item contained in the virtual list. */
   items: ReactNode[];
 
   /**
@@ -51,7 +51,7 @@ interface ListSource {
  * Stores measured item heights associated with a particular items array.
  */
 interface Measurements {
-  /** Items array for which the measurements were collected. */
+  /** Item array for which the measurements were collected. */
   items: ReactNode[];
 
   /**
