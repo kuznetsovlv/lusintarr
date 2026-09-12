@@ -50,10 +50,14 @@ export interface VirtualListProps {
    * A function receives the zero-based source item index and can provide a
    * different estimate for each item.
    *
-   * Once an item is rendered, its actual measured height takes precedence over
-   * the estimate.
+   * When omitted, VirtualList starts with a default estimate of 40 CSS pixels
+   * and gradually refines estimates for unmeasured items using the average
+   * height of items measured so far.
    *
-   * Negative estimates are normalized to zero.
+   * When an explicit estimate is provided, it is used as supplied and is not
+   * automatically adjusted from measured heights.
+   *
+   * Actual measurements always take precedence over estimates.
    *
    * @defaultValue `40`
    */
@@ -121,7 +125,7 @@ export const VirtualList: FC<VirtualListProps> = ({
   className,
   type = 'none',
   items = [],
-  estimatedItemHeight = DEFAULT_ESTIMATED_ITEM_HEIGHT,
+  estimatedItemHeight: originalEstimatedItemHeight,
   position,
   markerSpaceSize,
   startFrom = DEFAULT_START_FROM,
@@ -131,6 +135,10 @@ export const VirtualList: FC<VirtualListProps> = ({
 
   const [contentAreaHeight, setContentAreaHeight] = useState<number>(0);
   const [scroll, setScroll] = useState<number>(0);
+
+  const estimatedItemHeight =
+    originalEstimatedItemHeight ?? DEFAULT_ESTIMATED_ITEM_HEIGHT;
+  const useAverageHeight = originalEstimatedItemHeight === undefined;
 
   /**
    * Updates the available viewport height when the viewport itself is resized.
@@ -202,6 +210,7 @@ export const VirtualList: FC<VirtualListProps> = ({
     contentAreaHeight,
     type,
     position,
+    useAverageHeight,
   });
 
   /*

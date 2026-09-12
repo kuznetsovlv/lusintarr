@@ -45,6 +45,15 @@ interface ListSource {
    * @defaultValue `"outside"`
    */
   position?: 'inside' | 'outside';
+
+  /**
+   * Whether estimates for unmeasured items should gradually adapt to the average
+   * height of measured items.
+   *
+   * This is enabled when the consumer does not provide an explicit
+   * `estimatedItemHeight`.
+   */
+  useAverageHeight: boolean;
 }
 
 /**
@@ -85,10 +94,12 @@ export default function useRenderData({
   contentAreaHeight,
   type,
   position = 'outside',
+  useAverageHeight,
 }: ListSource): [list: ReactNode[], start: number, fullHeight: number] {
   const [heightMap, fullHeight, setItemHeight] = useHeightMap(
     items,
     estimatedItemHeight,
+    useAverageHeight,
   );
 
   const deferredScroll = useDeferredValue(scroll);
@@ -136,20 +147,25 @@ export default function useRenderData({
 /**
  * Builds and maintains the height map used for virtualization.
  *
- * Measured item heights take precedence over estimates. Unmeasured items use
- * either the fixed estimated height or the value returned by the per-item
- * estimate getter.
+ * Measured item heights always take precedence over estimates.
+ *
+ * When `useAverageHeight` is enabled, estimates for unmeasured items are
+ * gradually blended with the average measured height. The influence of the
+ * measured average increases as a larger proportion of items is measured.
  *
  * Measurements are reset when the source items array changes.
  *
  * @param items - Source items represented by the height map.
  * @param estimatedItemHeight - Fixed or per-item initial height estimate.
+ * @param useAverageHeight - Whether unmeasured estimates should adapt to the
+ * average measured height.
  * @returns The current height map, its total height, and a callback for
  * reporting measured item heights.
  */
 export function useHeightMap(
   items: ReactNode[],
   estimatedItemHeight: VirtualListEstimatedItemHeight,
+  useAverageHeight: boolean,
 ): [number[], number, SetItemHeightCallback] {
   const [measurements, setMeasurements] = useState<Measurements>(() => ({
     items,
@@ -165,17 +181,38 @@ export function useHeightMap(
 
     const heights: number[] = [];
 
+    let average = 0;
+    let weight = 0;
+
+    if (useAverageHeight) {
+      let sum = 0;
+      let count = 0;
+
+      for (let i = 0; i < measurements.heights.length; ++i) {
+        if (measurements.heights[i] !== undefined) {
+          sum += measurements.heights[i]!;
+          ++count;
+        }
+      }
+
+      if (count > 0) {
+        average = sum / count;
+        weight = count / measurements.heights.length;
+      }
+    }
+
     // `measurements.heights` may be sparse. Array.prototype.map() skips empty
     // slots, so use an indexed loop to produce a dense height map.
     for (let i = 0; i < measurements.heights.length; ++i) {
       heights.push(
         measurements.heights[i] ??
-          getEstimatedHeightValue(estimatedItemHeight, i),
+          (1 - weight) * getEstimatedHeightValue(estimatedItemHeight, i) +
+            weight * average,
       );
     }
 
     return heights;
-  }, [measurements, estimatedItemHeight, items]);
+  }, [measurements, estimatedItemHeight, items, useAverageHeight]);
 
   const fullHeight = useMemo(
     () => heightMap.reduce((s, h) => s + h, 0),
