@@ -1,5 +1,11 @@
 # lusintarr
 
+## 0.2.1
+
+### Patch Changes
+
+- 82be237: Redesigned stories
+
 ## 0.2.0
 
 ### Minor Changes
