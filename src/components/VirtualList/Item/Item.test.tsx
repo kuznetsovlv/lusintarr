@@ -3,7 +3,7 @@ import {render, screen} from '@testing-library/react';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import Item from './Item';
-import type {VirtualListMarkerProps} from './types';
+import type {VirtualListMarkerProps} from '../types';
 
 type ListItemRef = RefObject<HTMLLIElement | null>;
 

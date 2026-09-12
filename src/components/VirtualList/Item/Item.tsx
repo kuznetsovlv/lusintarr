@@ -6,7 +6,7 @@ import {
   useOnLayoutMount,
   useOnUnmount,
 } from 'react-swissbit';
-import type {VirtualListMarkerProps} from './types';
+import type {VirtualListMarkerProps} from '../types';
 
 interface ItemProps {
   /** Content rendered inside the list item. */

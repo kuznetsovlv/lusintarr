@@ -1,0 +1,32 @@
+[15:40:31.058] [INFO] storybook v10.5.10
+[15:40:31.700] [DEBUG] Getting package.json info for /home/leonid/Documents/projects/lusintarr/package.json...
+[15:40:31.913] [DEBUG] Could not determine @babel/preset-env version in use. In case of runtime errors with @babel/preset-env, you may need to set the babelRemoveBugfixes feature flag in your `main.ts` file.
+[15:40:32.056] [INFO] Starting...
+[15:40:32.136] [DEBUG] Starting preview..
+[15:40:32.241] [WARN] 🚨 Unable to index ./src/components/VirtualList/storybook/VirtualList.stories.tsx:
+  SyntaxError: Unterminated comment. (106:0)
+    at constructor (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:12164:21)
+    at Parser.raise (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:16357:71)
+    at Parser.skipBlockComment (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:15813:22)
+    at Parser.skipSpace (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:15863:38)
+    at Parser.skipSpace (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:15092:50)
+    at Parser.nextToken (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:15802:18)
+    at Parser.next (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:15736:203)
+    at Parser.eat (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:15739:41)
+    at Parser.isLineTerminator (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:16576:21)
+    at Parser.semicolon (file:///home/leonid/Documents/projects/lusintarr/node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/_node-chunks/chunk-JL67SUGJ.js:16579:26)
+[15:40:32.244] [ERROR] Failed to build the preview
+[15:40:32.247] [ERROR] Error: Unable to index ./src/components/VirtualList/storybook/VirtualList.stories.tsx
+    at _StoryIndexGenerator.getIndexAndStats (file://./node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/core-server/index.js:19416:15)
+    at async _StoryIndexGenerator.getIndex (file://./node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/core-server/index.js:19405:13)
+    at async BasicMinimalPluginContext.config (file://./node_modules/.pnpm/@storybook+builder-vite@10.5.10_esbuild@0.28.2_storybook@10.5.10_@types+react@19.2.18_p_391a48da698738a89dbc5601aa52c807/node_modules/@storybook/builder-vite/dist/_node-chunks/chunk-I2LYMCPD.js:188:19)
+    at async runConfigHook (file://./node_modules/.pnpm/vite@8.2.2_@types+node@26.2.0_esbuild@0.28.2_jiti@2.7.0_yaml@2.9.0/node_modules/vite/dist/node/chunks/node.js:37193:15)
+    at async resolveConfig (file://./node_modules/.pnpm/vite@8.2.2_@types+node@26.2.0_esbuild@0.28.2_jiti@2.7.0_yaml@2.9.0/node_modules/vite/dist/node/chunks/node.js:36606:11)
+    at async _createServer (file://./node_modules/.pnpm/vite@8.2.2_@types+node@26.2.0_esbuild@0.28.2_jiti@2.7.0_yaml@2.9.0/node_modules/vite/dist/node/chunks/node.js:26388:65)
+    at async Module.start (file://./node_modules/.pnpm/@storybook+builder-vite@10.5.10_esbuild@0.28.2_storybook@10.5.10_@types+react@19.2.18_p_391a48da698738a89dbc5601aa52c807/node_modules/@storybook/builder-vite/dist/index.js:1621:17)
+    at async storybookDevServer (file://./node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/core-server/index.js:11225:59)
+    at async buildOrThrow (file://./node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/core-server/index.js:8331:12)
+    at async buildDevStandalone (file://./node_modules/.pnpm/storybook@10.5.10_@types+react@19.2.18_prettier@3.9.6_react@19.2.8/node_modules/storybook/dist/core-server/index.js:11990:41)
+[15:40:32.249] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
+[15:40:42.505] [PROMPT] Would you like to send anonymous crash reports to improve Storybook and fix bugs faster? {"choice":true}
