@@ -1,0 +1,17 @@
+:root {
+  --lus-demo-background: #080d15;
+  --lus-demo-surface: #0d1623;
+  --lus-demo-surface-raised: #142236;
+
+  --lus-demo-border: #5d8fc7;
+  --lus-demo-border-subtle: #304967;
+
+  --lus-demo-text: #edf5ff;
+  --lus-demo-text-muted: #b8c7da;
+
+  --lus-demo-accent: #79baff;
+  --lus-demo-accent-strong: #3f8fe8;
+  --lus-demo-accent-soft: #cfe7ff;
+
+  --lus-demo-heading: #4a90e8;
+}
