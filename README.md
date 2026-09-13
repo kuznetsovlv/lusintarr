@@ -394,10 +394,10 @@ Although the rendered DOM is moved to `document.body`, the children remain in th
 
 #### Props
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `children` | `ReactNode` | — | Content rendered into the portal. |
-| `zIndex` | `CSSProperties['zIndex']` | — | Sets the `z-index` of the portal container. |
+| Prop       | Type                      | Default | Description                                 |
+| ---------- | ------------------------- | ------- | ------------------------------------------- |
+| `children` | `ReactNode`               | —       | Content rendered into the portal.           |
+| `zIndex`   | `CSSProperties['zIndex']` | —       | Sets the `z-index` of the portal container. |
 
 > `OutBound` requires a browser DOM because it renders directly into `document.body`.
 
