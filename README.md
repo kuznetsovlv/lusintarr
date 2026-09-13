@@ -74,7 +74,9 @@ import 'lusintarr/style.css';
 Lusintarr uses Tailwind CSS internally, but applications consuming the library
 do not need Tailwind or a Tailwind configuration.
 
-## VirtualList
+## Components
+
+### VirtualList
 
 `VirtualList` renders a vertical list while keeping only the currently visible
 items mounted in the DOM.
@@ -87,7 +89,7 @@ height to be known in advance. It starts with either a shared height estimate
 or a per-item estimate and replaces those estimates with actual measurements
 as items are rendered.
 
-### Basic usage
+#### Basic usage
 
 ```tsx
 import {VirtualList} from 'lusintarr';
@@ -127,7 +129,7 @@ occur:
 `className` is applied to the scrollable viewport, so applications remain in
 control of its size and surrounding layout.
 
-### Variable-height items
+#### Variable-height items
 
 Items may have different heights:
 
@@ -157,7 +159,7 @@ Examples include:
 - text wrapping after a width change;
 - images or other content changing the size of an existing item.
 
-### Per-item height estimates
+#### Per-item height estimates
 
 If different items are expected to have significantly different heights,
 `estimatedItemHeight` can also be a function:
@@ -184,7 +186,7 @@ typically taller or shorter than others.
 Negative estimates, whether supplied directly or returned by the function, are
 normalized to `0`.
 
-### Automatic estimate refinement
+#### Automatic estimate refinement
 
 When `estimatedItemHeight` is omitted, `VirtualList` starts with a default
 estimate of `40px`.
@@ -200,7 +202,7 @@ If `estimatedItemHeight` is provided explicitly — either as a number or as a
 per-item getter — automatic refinement is disabled and the supplied estimates
 are preserved until actual measurements become available.
 
-### Native scrolling
+#### Native scrolling
 
 `VirtualList` uses the browser's native scrolling rather than implementing a
 custom scrollbar.
@@ -210,7 +212,7 @@ source list, while only the currently visible items are mounted.
 
 As measurements become available, the estimated layout is refined.
 
-### List markers
+#### List markers
 
 `VirtualList` can render both unordered and ordered lists.
 
@@ -236,7 +238,7 @@ Ordered marker types:
 Ordered types render a semantic `<ol>`. Unordered types render a semantic
 `<ul>`.
 
-### Custom markers
+#### Custom markers
 
 A React component can be used instead of a built-in marker type:
 
@@ -261,7 +263,7 @@ Custom markers support the same `position` option as built-in markers:
 <VirtualList type={Marker} position="outside" items={items} />
 ```
 
-### Marker position
+#### Marker position
 
 With `position="outside"`, the custom marker is positioned immediately before
 the item's inline-start edge. With `position="inside"`, it remains in the
@@ -282,7 +284,7 @@ Supported values are:
 When `position` is omitted, the browser's default list marker position is
 preserved.
 
-### Marker space
+#### Marker space
 
 Browsers normally reserve inline space for outside list markers. This space can
 be overridden with `markerSpaceSize`:
@@ -308,7 +310,7 @@ preserved.
 The option has no effect when `type="none"` or when markers are positioned
 inside.
 
-### Ordered-list numbering
+#### Ordered-list numbering
 
 Use `startFrom` to change the ordinal of the first source item:
 
@@ -322,7 +324,7 @@ not mounted.
 For example, if the fifth source item is the first item currently rendered,
 the corresponding ordered list begins at `104`.
 
-### Props
+#### Props
 
 | Prop                  | Type                                                                                                        | Default         | Description                                                                                                                 |
 | --------------------- | ----------------------------------------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------- |
@@ -334,7 +336,7 @@ the corresponding ordered list begins at `104`.
 | `startFrom`           | `number`                                                                                                    | `1`             | Ordinal assigned to the first source item of an ordered list.                                                               |
 | `className`           | `string`                                                                                                    | —               | CSS class applied to the scrollable viewport.                                                                               |
 
-### Notes
+#### Notes
 
 `VirtualList` treats a new `items` array as a new list layout and resets
 previous item measurements. Prefer immutable React data patterns rather than
@@ -359,6 +361,45 @@ Outside custom markers are positioned independently of the list item's
 measured size. A custom marker that is significantly taller than its item may
 therefore overlap adjacent items. Applications using unusually large markers
 should account for this in their item layout.
+
+### OutBound
+
+Renders its children into `document.body` using a React portal.
+
+`OutBound` is useful for UI elements that need to escape the DOM hierarchy of their parent, such as overlays, popovers, tooltips, menus, and floating controls.
+
+The portal container is fixed at the top-left corner of the viewport and has no size of its own. Children are responsible for their own positioning and dimensions.
+
+```tsx
+import {OutBound} from 'lusintarr';
+
+function Example() {
+  return (
+    <OutBound zIndex={1000}>
+      <div
+        style={{
+          position: 'fixed',
+          top: 16,
+          right: 16,
+        }}
+      >
+        Portal content
+      </div>
+    </OutBound>
+  );
+}
+```
+
+Although the rendered DOM is moved to `document.body`, the children remain in the same React component tree, so React context and event propagation continue to work as expected.
+
+#### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Content rendered into the portal. |
+| `zIndex` | `CSSProperties['zIndex']` | — | Sets the `z-index` of the portal container. |
+
+> `OutBound` requires a browser DOM because it renders directly into `document.body`.
 
 ## Styling
 
