@@ -1,5 +1,11 @@
 # lusintarr
 
+## 0.3.0
+
+### Minor Changes
+
+- 8928f4f: Add OutBound portal component for rendering overlays and floating UI into document.body, with optional z-index control.
+
 ## 0.2.2
 
 ### Patch Changes
