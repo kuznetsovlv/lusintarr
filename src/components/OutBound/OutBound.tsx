@@ -5,7 +5,7 @@ import type {CSSProperties, FC, PropsWithChildren} from 'react';
 /**
  * Props for the {@link OutBound} component.
  */
-export interface OutBoundProps extends PropsWithChildren {
+export interface OutBoundProps {
   /**
    * Controls the stacking order of the portal container.
    *
@@ -39,7 +39,10 @@ export interface OutBoundProps extends PropsWithChildren {
  * </OutBound>
  * ```
  */
-export const OutBound: FC<OutBoundProps> = ({children, zIndex}) =>
+export const OutBound: FC<PropsWithChildren<OutBoundProps>> = ({
+  children,
+  zIndex,
+}) =>
   createPortal(
     <div
       id={useId()}
