@@ -1,15 +1,12 @@
-import type {PropsWithChildren, FC} from 'react';
+import type {PropsWithChildren, FC, PointerEventHandler} from 'react';
 import {tv} from 'tailwind-variants';
 
-import type {
-  PointEventHandler,
-  WindowProps as RestrictedWindowProps,
-} from '../types';
+import type {WindowProps as RestrictedWindowProps} from '../types';
 import {getStyle} from './utils';
 import {DEFAULT_POSITION} from './constants';
 
 interface WindowProps extends RestrictedWindowProps {
-  onPointerDown: PointEventHandler;
+  onPointerDownCapture: PointerEventHandler;
 }
 
 const styleConfig = tv({
@@ -32,13 +29,13 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
   onDragStart,
   onDrag,
   onDragStop,
-  onPointerDown,
+  onPointerDownCapture,
 }) => {
   return (
     <div
       className={styleConfig({className})}
       style={getStyle(position)}
-      onPointerDown={onPointerDown}
+      onPointerDownCapture={onPointerDownCapture}
     >
       {children}
     </div>

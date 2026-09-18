@@ -1,15 +1,14 @@
 import {useRef, useEffect} from 'react';
+import type {PointerEventHandler} from 'react';
 import {useHandler} from 'react-swissbit';
-
-import type {PointEventHandler} from './types';
 
 export default function useOutsideInteraction(
   outsideCallBack?: () => void,
   enabled: boolean = false,
-): PointEventHandler {
+): PointerEventHandler {
   const insideEvents = useRef(new WeakSet<PointerEvent>());
 
-  const pointEventHandler: PointEventHandler = useHandler((event) => {
+  const pointerEventHandler: PointerEventHandler = useHandler((event) => {
     if (enabled) {
       insideEvents.current.add(event.nativeEvent);
     }
@@ -20,22 +19,27 @@ export default function useOutsideInteraction(
       return;
     }
 
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+
     const handlePointerDown = (event: PointerEvent) => {
-      setTimeout(() => {
-        if (insideEvents.current.has(event)) {
-          insideEvents.current.delete(event);
-        } else {
+      const timer = setTimeout(() => {
+        timers.delete(timer);
+
+        if (!insideEvents.current.delete(event)) {
           outsideCallBack?.();
         }
       }, 0);
+
+      timers.add(timer);
     };
 
     document.addEventListener('pointerdown', handlePointerDown, true);
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
+      timers.forEach(clearTimeout);
     };
   }, [outsideCallBack, enabled]);
 
-  return pointEventHandler;
+  return pointerEventHandler;
 }
