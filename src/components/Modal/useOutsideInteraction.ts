@@ -22,7 +22,9 @@ export default function useOutsideInteraction(
 
     const handlePointerDown = (event: PointerEvent) => {
       setTimeout(() => {
-        if (!insideEvents.current.has(event)) {
+        if (insideEvents.current.has(event)) {
+          insideEvents.current.delete(event);
+        } else {
           outsideCallBack?.();
         }
       }, 0);
