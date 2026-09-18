@@ -1,4 +1,4 @@
-import type {CSSProperties, ReactNode} from 'react';
+import type {CSSProperties, PointerEvent, ReactNode} from 'react';
 
 export type PositionValue = `${number}${'' | '%'}`;
 export type Position = PositionValue | `${PositionValue}:${PositionValue}`;
@@ -10,10 +10,10 @@ export interface BlockProps {
 export interface WindowProps {
   className?: string;
   position?: Position;
-  autoCloseable?: boolean;
   dragHolder?: ReactNode;
-  onClose?: () => void;
   onDragStart?: () => void;
   onDrag?: () => void;
-  onDrop?: () => void;
+  onDragStop?: () => void;
 }
+
+export type PointEventHandler = (event: PointerEvent<HTMLElement>) => void;

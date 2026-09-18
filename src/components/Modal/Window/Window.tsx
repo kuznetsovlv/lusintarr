@@ -1,9 +1,16 @@
 import type {PropsWithChildren, FC} from 'react';
 import {tv} from 'tailwind-variants';
 
-import type {WindowProps} from '../types';
+import type {
+  PointEventHandler,
+  WindowProps as RestrictedWindowProps,
+} from '../types';
 import {getStyle} from './utils';
 import {DEFAULT_POSITION} from './constants';
+
+interface WindowProps extends RestrictedWindowProps {
+  onPointerDown: PointEventHandler;
+}
 
 const styleConfig = tv({
   base: [
@@ -20,16 +27,19 @@ const styleConfig = tv({
 const Window: FC<PropsWithChildren<WindowProps>> = ({
   className,
   position = DEFAULT_POSITION,
-  autoCloseable,
   dragHolder,
   children,
-  onClose,
   onDragStart,
   onDrag,
-  onDrop,
+  onDragStop,
+  onPointerDown,
 }) => {
   return (
-    <div className={styleConfig(className)} style={getStyle(position)}>
+    <div
+      className={styleConfig({className})}
+      style={getStyle(position)}
+      onPointerDown={onPointerDown}
+    >
       {children}
     </div>
   );
