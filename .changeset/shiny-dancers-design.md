@@ -1,0 +1,5 @@
+---
+'lusintarr': patch
+---
+
+Fixed README
