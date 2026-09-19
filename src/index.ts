@@ -1,2 +1,2 @@
 export * from './components';
-export type {Position, DragEvent} from './types';
+export type * from './types';
