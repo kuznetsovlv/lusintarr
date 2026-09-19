@@ -1,5 +1,11 @@
 # lusintarr
 
+## 0.4.0
+
+### Minor Changes
+
+- fb3e80e: Created Modal window component
+
 ## 0.3.0
 
 ### Minor Changes
