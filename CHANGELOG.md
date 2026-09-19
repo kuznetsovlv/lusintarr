@@ -1,5 +1,11 @@
 # lusintarr
 
+## 0.4.1
+
+### Patch Changes
+
+- bc40eeb: Fixed README
+
 ## 0.4.0
 
 ### Minor Changes
