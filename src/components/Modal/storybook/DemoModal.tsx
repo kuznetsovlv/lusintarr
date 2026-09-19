@@ -4,7 +4,7 @@ import {useToggle, useHandler} from 'react-swissbit';
 
 import {Modal} from '../Modal';
 import type {ModalProps} from '../Modal';
-import type {Position, Coords, DragEvent} from '@/types';
+import type {Position, Coords, PointerDragEvent} from '@/types';
 import {Header, Button} from '@/story_components';
 
 interface Modifier {
@@ -46,7 +46,7 @@ interface DraggerProps {
   onClick?: () => void;
 }
 
-const Dragger: React.FC<DraggerProps> = ({onClick}) => (
+const Dragger: FC<DraggerProps> = ({onClick}) => (
   <div className="ltw:flex ltw:items-center ltw:justify-end ltw:h-fit ltw:border-r-2 ltw:bg-(image:--lus-demo-gradient) ltw:w-full ltw:box-border ltw:p-0.5">
     <Button
       className="ltw:h-5 ltw:w-5 ltw:border-r-2 ltw:text-center ltw:align-middle ltw:p-0"
@@ -69,14 +69,14 @@ const ModalWindow: FC<ModalWindowProps> = ({
   const [cursor, setCursor] = useState<Coords | null>(null);
 
   const handleDragStart = useHandler(
-    ({cursor, container: {x, y}}: DragEvent) => {
+    ({cursor, container: {x, y}}: PointerDragEvent) => {
       setCursor(cursor);
       setPosition(`${x}:${y}`);
     },
   );
 
   const handleDrag = useHandler(
-    ({cursor: newCursor, container: {x, y}}: DragEvent) => {
+    ({cursor: newCursor, container: {x, y}}: PointerDragEvent) => {
       if (cursor) {
         const dx = newCursor.x - cursor.x;
         const dy = newCursor.y - cursor.y;
@@ -109,7 +109,7 @@ const ModalWindow: FC<ModalWindowProps> = ({
     <Modal
       {...props}
       position={position}
-      dragHolder={withDragger ? <Dragger onClick={onClose} /> : undefined}
+      dragHandle={withDragger ? <Dragger onClick={onClose} /> : undefined}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragStop={handleDragStop}

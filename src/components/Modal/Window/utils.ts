@@ -1,7 +1,7 @@
 import type {
   Position,
   PositionValue,
-  DragEvent,
+  PointerDragEvent,
   ElementBox,
   BoxSize,
   Coords,
@@ -51,7 +51,7 @@ export function getDragEvent(
   handlerElement: HTMLElement,
   containerElement: HTMLElement,
   type: DragEventType,
-): DragEvent {
+): PointerDragEvent {
   const view: BoxSize = {width: window.innerWidth, height: window.innerHeight};
   const cursor: Coords = {x: event.clientX, y: event.clientY};
   const dragHandle = getElementBox(handlerElement);

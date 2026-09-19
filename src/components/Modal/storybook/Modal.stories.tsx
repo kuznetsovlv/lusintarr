@@ -41,7 +41,7 @@ const meta = {
       control: false,
     },
 
-    dragHolder: {
+    dragHandle: {
       control: false,
     },
 

@@ -1,2 +1,2 @@
 export * from './components';
-export type * from './types';
+export type * from './publicTypes';

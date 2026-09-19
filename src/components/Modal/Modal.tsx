@@ -10,7 +10,7 @@ import useOutsideInteraction from './useOutsideInteraction';
 export interface ModalProps extends OutBoundProps, BlockProps, WindowProps {
   blocking?: boolean;
   open?: boolean;
-  onInteractOutside?: () => void;
+  onInteractOutside?: (event: PointerEvent) => void;
 }
 
 export const Modal: FC<PropsWithChildren<ModalProps>> = ({

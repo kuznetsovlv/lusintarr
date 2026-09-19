@@ -1,5 +1,5 @@
-import type {PropsWithChildren, FC, PointerEventHandler} from 'react';
 import {useRef} from 'react';
+import type {PropsWithChildren, FC, PointerEventHandler} from 'react';
 import {tv} from 'tailwind-variants';
 import {useToggle, useHandler} from 'react-swissbit';
 
@@ -27,7 +27,7 @@ const styleConfig = tv({
 const Window: FC<PropsWithChildren<WindowProps>> = ({
   className,
   position = DEFAULT_POSITION,
-  dragHolder,
+  dragHandle,
   children,
   onDragStart,
   onDrag,
@@ -36,16 +36,23 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
 }) => {
   const windowRef = useRef<HTMLDivElement>(null);
   const handlerRef = useRef<HTMLDivElement>(null);
-  const [dragging, {on: draggingOn, off: dragginOff}] = useToggle(false);
+  const draggingRef = useRef<boolean>(false);
+  const [dragging, {on: draggingOn, off: draggingOff}] = useToggle(false);
 
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = useHandler(
     (event) => {
-      if (!windowRef.current || !handlerRef.current) {
+      if (
+        !windowRef.current ||
+        !handlerRef.current ||
+        event.button !== 0 ||
+        !event.isPrimary
+      ) {
         return;
       }
 
       event.currentTarget.setPointerCapture(event.pointerId);
       draggingOn();
+      draggingRef.current = true;
       onDragStart?.(
         getDragEvent(event, handlerRef.current, windowRef.current, 'start'),
       );
@@ -54,7 +61,7 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
 
   const handlerPointerMove: PointerEventHandler<HTMLDivElement> = useHandler(
     (event) => {
-      if (!dragging || !windowRef.current || !handlerRef.current) {
+      if (!draggingRef.current || !windowRef.current || !handlerRef.current) {
         return;
       }
 
@@ -64,17 +71,28 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
     },
   );
 
-  const handlePointerUp: PointerEventHandler<HTMLDivElement> = useHandler(
+  const finishDragging: PointerEventHandler<HTMLDivElement> = useHandler(
     (event) => {
-      if (!dragging || !windowRef.current || !handlerRef.current) {
+      if (!draggingRef.current || !windowRef.current || !handlerRef.current) {
         return;
       }
 
-      event.currentTarget.releasePointerCapture(event.pointerId);
-      dragginOff();
+      draggingRef.current = false;
+      draggingOff();
+
       onDragStop?.(
         getDragEvent(event, handlerRef.current, windowRef.current, 'end'),
       );
+    },
+  );
+
+  const handlePointerUp: PointerEventHandler<HTMLDivElement> = useHandler(
+    (event) => {
+      finishDragging(event);
+
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
     },
   );
 
@@ -85,22 +103,24 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
       style={getStyle(position)}
       onPointerDownCapture={onPointerDownCapture}
     >
-      {!!dragHolder && (
+      {!!dragHandle && (
         <div
           ref={handlerRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlerPointerMove}
           onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          onLostPointerCapture={handlePointerUp}
+          onPointerCancel={finishDragging}
+          onLostPointerCapture={finishDragging}
           className={[
             dragging ? 'ltw:cursor-grabbing' : 'ltw:cursor-grab',
             'ltw:active:cursor-grabbing',
+            'ltw:touch-none',
+            'ltw:select-none',
             'ltw:w-full',
             ...baseClasses,
           ].join(' ')}
         >
-          {dragHolder}
+          {dragHandle}
         </div>
       )}
       <div className={baseClasses.join(' ')}>{children}</div>

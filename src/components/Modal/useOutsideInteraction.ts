@@ -3,7 +3,7 @@ import type {PointerEventHandler} from 'react';
 import {useHandler} from 'react-swissbit';
 
 export default function useOutsideInteraction(
-  outsideCallBack?: () => void,
+  outsideCallBack?: (event: PointerEvent) => void,
   enabled: boolean = false,
 ): PointerEventHandler {
   const insideEvents = useRef(new WeakSet<PointerEvent>());
@@ -13,6 +13,10 @@ export default function useOutsideInteraction(
       insideEvents.current.add(event.nativeEvent);
     }
   });
+
+  const handleInteractOutside = useHandler((event: PointerEvent) =>
+    outsideCallBack?.(event),
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -26,7 +30,7 @@ export default function useOutsideInteraction(
         timers.delete(timer);
 
         if (!insideEvents.current.delete(event)) {
-          outsideCallBack?.();
+          handleInteractOutside(event);
         }
       }, 0);
 
@@ -39,7 +43,7 @@ export default function useOutsideInteraction(
       document.removeEventListener('pointerdown', handlePointerDown, true);
       timers.forEach(clearTimeout);
     };
-  }, [outsideCallBack, enabled]);
+  }, [handleInteractOutside, enabled]);
 
   return pointerEventHandler;
 }
