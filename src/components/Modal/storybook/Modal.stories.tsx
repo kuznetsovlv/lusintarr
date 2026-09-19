@@ -3,6 +3,9 @@ import DemoModal from './DemoModal';
 import type {DemoModalProps} from './DemoModal';
 import {DEFAULT_BACKGROUND_COLOR} from '../constants';
 
+/**
+ * Storybook metadata and controls shared by the Modal stories.
+ */
 const meta = {
   title: 'Components/Modal',
   render: (args) => <DemoModal {...args} />,
@@ -58,6 +61,10 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+/**
+ * Demonstrates basic modal positioning, blocking mode, nested modals, and
+ * outside-interaction policies without drag controls.
+ */
 export const Modal: Story = {
   args: {
     title: 'Simple Modal',
@@ -65,6 +72,9 @@ export const Modal: Story = {
   },
 };
 
+/**
+ * Demonstrates the same modal behavior with a pointer-driven drag handle.
+ */
 export const Draggable: Story = {
   args: {
     title: 'Draggable Modal',

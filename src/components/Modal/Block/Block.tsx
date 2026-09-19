@@ -3,6 +3,15 @@ import type {PropsWithChildren, FC} from 'react';
 import type {BlockProps} from '../types';
 import {DEFAULT_BACKGROUND_COLOR} from '../constants';
 
+/**
+ * Renders the full-screen backdrop used by a blocking modal.
+ *
+ * The backdrop covers the viewport and therefore intercepts pointer
+ * interaction that would otherwise reach the page underneath the modal.
+ *
+ * This is an internal building block of {@link Modal}; it does not provide
+ * modal behavior on its own.
+ */
 const Block: FC<PropsWithChildren<BlockProps>> = ({
   children,
   background = DEFAULT_BACKGROUND_COLOR,

@@ -3,11 +3,23 @@ import {tv} from 'tailwind-variants';
 import type {Layout} from '@/types';
 import {useHandler} from 'react-swissbit';
 
+/**
+ * Props for the shared Storybook demo button.
+ */
 interface ButtonProps {
+  /** Native button type. */
   type?: 'button' | 'submit';
+
+  /** Additional Tailwind classes applied to the button. */
   className?: string;
+
+  /** CSS layout mode used by the button. */
   layout?: Layout;
+
+  /** Additional inline styles applied to the button. */
   style?: CSSProperties;
+
+  /** Called when the button is activated. */
   onClick?: () => void;
 }
 
@@ -21,6 +33,16 @@ const button = tv({
   },
 });
 
+/**
+ * Shared button used by Storybook demos.
+ *
+ * Pointer-down propagation is intentionally stopped so demo controls can be
+ * embedded inside interactive components such as modal drag handles without
+ * accidentally starting the parent interaction.
+ *
+ * This component exists only for stories and is not part of the public
+ * Lusintarr API.
+ */
 export const Button: FC<PropsWithChildren<ButtonProps>> = ({
   children,
   className,
