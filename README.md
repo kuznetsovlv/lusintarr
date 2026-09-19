@@ -394,14 +394,9 @@ export function Example() {
         Open modal
       </button>
 
-      <Modal
-        open={open}
-        blocking
-        onInteractOutside={() => setOpen(false)}
-      >
+      <Modal open={open} blocking onInteractOutside={() => setOpen(false)}>
         <div className="modal-content">
           Modal content
-
           <button type="button" onClick={() => setOpen(false)}>
             Close
           </button>
@@ -440,11 +435,7 @@ The default backdrop background is:
 It can be overridden with `background`:
 
 ```tsx
-<Modal
-  open
-  blocking
-  background="rgba(20, 30, 50, 0.65)"
->
+<Modal open blocking background="rgba(20, 30, 50, 0.65)">
   <div>Modal content</div>
 </Modal>
 ```
@@ -506,13 +497,13 @@ respectively.
 A single value is applied to both axes, so:
 
 ```ts
-'50%'
+'50%';
 ```
 
 is equivalent to:
 
 ```ts
-'50%:50%'
+'50%:50%';
 ```
 
 Pixel and percentage coordinates may be mixed:
@@ -574,10 +565,7 @@ classified as part of the modal.
 A React node can be supplied as `dragHandle`:
 
 ```tsx
-<Modal
-  open
-  dragHandle={<header>Drag me</header>}
->
+<Modal open dragHandle={<header>Drag me</header>}>
   <div>Modal content</div>
 </Modal>
 ```
@@ -589,31 +577,21 @@ position controlled by the application:
 
 ```tsx
 import {useRef, useState} from 'react';
-import type {
-  Coords,
-  PointerDragEvent,
-  Position,
-} from 'lusintarr';
+import type {Coords, PointerDragEvent, Position} from 'lusintarr';
 import {Modal} from 'lusintarr';
 
 export function DraggableModal() {
   const [position, setPosition] = useState<Position>('50%');
   const previousCursor = useRef<Coords | null>(null);
 
-  const handleDragStart = ({
-    cursor,
-    container,
-  }: PointerDragEvent) => {
+  const handleDragStart = ({cursor, container}: PointerDragEvent) => {
     previousCursor.current = cursor;
 
     // Convert the currently rendered position to pixels before movement.
     setPosition(`${container.x}:${container.y}`);
   };
 
-  const handleDrag = ({
-    cursor,
-    container,
-  }: PointerDragEvent) => {
+  const handleDrag = ({cursor, container}: PointerDragEvent) => {
     if (previousCursor.current) {
       const dx = cursor.x - previousCursor.current.x;
       const dy = cursor.y - previousCursor.current.y;
@@ -678,20 +656,20 @@ Element measurements are snapshots taken when each drag callback is created.
 
 #### Props
 
-| Prop                | Type                                         | Default  | Description                                                                 |
-| ------------------- | -------------------------------------------- | -------- | --------------------------------------------------------------------------- |
-| `children`          | `ReactNode`                                  | —        | Content rendered inside the modal window.                                   |
-| `open`              | `boolean`                                    | `false`  | Controls whether the modal is rendered.                                     |
-| `blocking`          | `boolean`                                    | `false`  | Renders a full-screen backdrop behind the modal.                            |
-| `background`        | `CSSProperties['background']`                | `'#0007'` | Background used by the blocking backdrop.                                   |
-| `position`          | `Position`                                   | `'50%'`  | Controls the viewport-relative modal position.                              |
-| `className`         | `string`                                     | —        | CSS class applied to the modal window container.                            |
-| `zIndex`            | `CSSProperties['zIndex']`                    | —        | Sets the `z-index` of the portal container.                                 |
-| `dragHandle`        | `ReactNode`                                  | —        | Content used as the pointer drag handle.                                    |
-| `onDragStart`       | `(event: PointerDragEvent) => void`          | —        | Called when a primary pointer starts dragging the handle.                   |
-| `onDrag`            | `(event: PointerDragEvent) => void`          | —        | Called when the active pointer moves during a drag.                         |
-| `onDragStop`        | `(event: PointerDragEvent) => void`          | —        | Called when an active drag finishes or is cancelled.                        |
-| `onInteractOutside` | `(event: PointerEvent) => void`              | —        | Called when pointer interaction starts outside the logical modal subtree.   |
+| Prop                | Type                                | Default   | Description                                                               |
+| ------------------- | ----------------------------------- | --------- | ------------------------------------------------------------------------- |
+| `children`          | `ReactNode`                         | —         | Content rendered inside the modal window.                                 |
+| `open`              | `boolean`                           | `false`   | Controls whether the modal is rendered.                                   |
+| `blocking`          | `boolean`                           | `false`   | Renders a full-screen backdrop behind the modal.                          |
+| `background`        | `CSSProperties['background']`       | `'#0007'` | Background used by the blocking backdrop.                                 |
+| `position`          | `Position`                          | `'50%'`   | Controls the viewport-relative modal position.                            |
+| `className`         | `string`                            | —         | CSS class applied to the modal window container.                          |
+| `zIndex`            | `CSSProperties['zIndex']`           | —         | Sets the `z-index` of the portal container.                               |
+| `dragHandle`        | `ReactNode`                         | —         | Content used as the pointer drag handle.                                  |
+| `onDragStart`       | `(event: PointerDragEvent) => void` | —         | Called when a primary pointer starts dragging the handle.                 |
+| `onDrag`            | `(event: PointerDragEvent) => void` | —         | Called when the active pointer moves during a drag.                       |
+| `onDragStop`        | `(event: PointerDragEvent) => void` | —         | Called when an active drag finishes or is cancelled.                      |
+| `onInteractOutside` | `(event: PointerEvent) => void`     | —         | Called when pointer interaction starts outside the logical modal subtree. |
 
 #### Notes
 
