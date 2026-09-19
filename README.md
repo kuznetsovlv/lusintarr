@@ -367,7 +367,7 @@ should account for this in their item layout.
 `Modal` renders viewport-positioned content through a React portal.
 
 It is intentionally controlled and behavior-oriented rather than being a
-pre-styled dialog component. Applications remain responsible for the modal
+pre-styled, fully managed dialog component. Applications remain responsible for the modal
 content, visual appearance, close policy, and drag positioning.
 
 `Modal` supports:
