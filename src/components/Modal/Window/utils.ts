@@ -5,7 +5,7 @@ import type {
   ElementBox,
   BoxSize,
   Coords,
-  DragEventType,
+  PointerDragEventType,
 } from '@/types';
 import type {CSSProperties, PointerEvent} from 'react';
 
@@ -50,7 +50,7 @@ export function getDragEvent(
   event: PointerEvent<HTMLElement>,
   handlerElement: HTMLElement,
   containerElement: HTMLElement,
-  type: DragEventType,
+  type: PointerDragEventType,
 ): PointerDragEvent {
   const view: BoxSize = {width: window.innerWidth, height: window.innerHeight};
   const cursor: Coords = {x: event.clientX, y: event.clientY};

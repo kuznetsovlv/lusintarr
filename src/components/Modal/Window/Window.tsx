@@ -11,9 +11,7 @@ interface WindowProps extends RestrictedWindowProps {
   onPointerDownCapture: PointerEventHandler;
 }
 
-const baseClasses = [
-  'ltw:w-fit',
-  'ltw:h-fit',
+const resetClasses = [
   'ltw:m-0',
   'ltw:p-0',
   'ltw:border-0',
@@ -21,7 +19,7 @@ const baseClasses = [
 ];
 
 const styleConfig = tv({
-  base: ['ltw:fixed', ...baseClasses],
+  base: ['ltw:fixed', 'ltw:grid', 'ltw:w-fit', 'ltw:h-fit', ...resetClasses],
 });
 
 const Window: FC<PropsWithChildren<WindowProps>> = ({
@@ -59,7 +57,7 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
     },
   );
 
-  const handlerPointerMove: PointerEventHandler<HTMLDivElement> = useHandler(
+  const handlePointerMove: PointerEventHandler<HTMLDivElement> = useHandler(
     (event) => {
       if (!draggingRef.current || !windowRef.current || !handlerRef.current) {
         return;
@@ -99,6 +97,7 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
   return (
     <div
       ref={windowRef}
+      role="dialog"
       className={styleConfig({className})}
       style={getStyle(position)}
       onPointerDownCapture={onPointerDownCapture}
@@ -107,7 +106,7 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
         <div
           ref={handlerRef}
           onPointerDown={handlePointerDown}
-          onPointerMove={handlerPointerMove}
+          onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={finishDragging}
           onLostPointerCapture={finishDragging}
@@ -116,14 +115,13 @@ const Window: FC<PropsWithChildren<WindowProps>> = ({
             'ltw:active:cursor-grabbing',
             'ltw:touch-none',
             'ltw:select-none',
-            'ltw:w-full',
-            ...baseClasses,
+            ...resetClasses,
           ].join(' ')}
         >
           {dragHandle}
         </div>
       )}
-      <div className={baseClasses.join(' ')}>{children}</div>
+      <div className={resetClasses.join(' ')}>{children}</div>
     </div>
   );
 };

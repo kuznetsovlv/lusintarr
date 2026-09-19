@@ -28,10 +28,10 @@ export interface ElementBox extends Box {
   element: HTMLElement;
 }
 
-export type DragEventType = 'start' | 'drag' | 'end';
+export type PointerDragEventType = 'start' | 'drag' | 'end';
 
 export interface PointerDragEvent {
-  type: DragEventType;
+  type: PointerDragEventType;
   dragHandle: ElementBox;
   container: ElementBox;
   cursor: Coords;
