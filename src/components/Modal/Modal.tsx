@@ -10,8 +10,7 @@ import useOutsideInteraction from './useOutsideInteraction';
 export interface ModalProps extends OutBoundProps, BlockProps, WindowProps {
   blocking?: boolean;
   open?: boolean;
-  autoCloseable?: boolean;
-  onClose?: () => void;
+  onInteractOutside?: () => void;
 }
 
 export const Modal: FC<PropsWithChildren<ModalProps>> = ({
@@ -19,13 +18,12 @@ export const Modal: FC<PropsWithChildren<ModalProps>> = ({
   open = false,
   background,
   zIndex,
-  autoCloseable,
-  onClose,
+  onInteractOutside,
   ...props
 }) => {
   const pointerDownHandler = useOutsideInteraction(
-    onClose,
-    autoCloseable && open && !!onClose,
+    onInteractOutside,
+    open && !!onInteractOutside,
   );
 
   if (!open) {
