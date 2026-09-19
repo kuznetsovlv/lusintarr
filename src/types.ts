@@ -8,3 +8,34 @@ export interface BoxSize {
   /** Box height in CSS pixels. */
   height: number;
 }
+
+export interface Coords {
+  x: number;
+  y: number;
+}
+
+export type Layout = 'inline' | 'block';
+
+export type PositionValue = `${number}${'' | '%'}`;
+export type Position = PositionValue | `${PositionValue}:${PositionValue}`;
+
+export interface Box extends BoxSize, Coords {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+export interface ElementBox extends Box {
+  element: HTMLElement;
+}
+
+export type DragEventType = 'start' | 'drag' | 'end';
+
+export interface DragEvent {
+  type: DragEventType;
+  dragHandle: ElementBox;
+  container: ElementBox;
+  cursor: Coords;
+  view: BoxSize;
+}

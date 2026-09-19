@@ -1,6 +1,6 @@
 import type {CSSProperties} from 'react';
 
-import type {PositionValue} from '../types';
+import type {PositionValue} from '@/types';
 import type {
   ParsedPositionValue,
   ResultTranslate,

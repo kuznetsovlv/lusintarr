@@ -11,5 +11,3 @@ export interface DemoProps {
   title: string;
   useMarkerSpaceSize: boolean;
 }
-
-export type Layout = 'inline' | 'block';

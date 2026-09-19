@@ -1,8 +1,7 @@
 import type {PropsWithChildren, FC} from 'react';
 
 import type {BlockProps} from '../types';
-
-const DEFAULT_BACKGROUND_COLOR = '#0007';
+import {DEFAULT_BACKGROUND_COLOR} from '../constants';
 
 const Block: FC<PropsWithChildren<BlockProps>> = ({
   children,

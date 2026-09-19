@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react-vite';
 import {OutBound} from '../OutBound';
 import lusintarrImage from './lusintarr.png?url';
+import {Header} from '@/story_components';
 
 export default {
   title: 'components/OutBound',
@@ -12,9 +13,7 @@ type Story = StoryObj<typeof OutBound>;
 export const Default: Story = {
   render: () => (
     <>
-      <h1 className="ltw:mb-4 ltw:text-3xl ltw:font-semibold ltw:text-(--lus-demo-heading)">
-        OutBound Component: two overlapping images
-      </h1>
+      <Header>OutBound Component: two overlapping images</Header>
       <OutBound>
         <img
           src={lusintarrImage}

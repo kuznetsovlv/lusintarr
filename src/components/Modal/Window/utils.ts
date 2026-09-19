@@ -1,5 +1,13 @@
-import type {Position, PositionValue} from '../types';
-import type {CSSProperties} from 'react';
+import type {
+  Position,
+  PositionValue,
+  DragEvent,
+  ElementBox,
+  BoxSize,
+  Coords,
+  DragEventType,
+} from '@/types';
+import type {CSSProperties, PointerEvent} from 'react';
 
 import type {ParsedPositionValue} from './types';
 import {DEFAULT_STYLE, DEFAULT_POSITION_VALUE} from './constants';
@@ -36,4 +44,25 @@ function parsePositionValue(value: PositionValue): ParsedPositionValue {
     pos: `${num}${isPercent ? '%' : 'px'}`,
     translate: isPercent ? `${-num}%` : '0',
   };
+}
+
+export function getDragEvent(
+  event: PointerEvent<HTMLElement>,
+  handlerElement: HTMLElement,
+  containerElement: HTMLElement,
+  type: DragEventType,
+): DragEvent {
+  const view: BoxSize = {width: window.innerWidth, height: window.innerHeight};
+  const cursor: Coords = {x: event.clientX, y: event.clientY};
+  const dragHandle = getElementBox(handlerElement);
+  const container = getElementBox(containerElement);
+
+  return {type, view, container, cursor, dragHandle};
+}
+
+export function getElementBox(element: HTMLElement): ElementBox {
+  const {top, bottom, left, right, height, width, y, x} =
+    element.getBoundingClientRect();
+
+  return {element, top, bottom, left, right, height, width, y, x};
 }
