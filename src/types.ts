@@ -1,10 +1,14 @@
 /**
- * Represents the dimensions of a rectangular box in CSS pixels.
+ * Re-exports public shared types for convenient internal imports.
+ *
+ * Additional types declared in this module are internal to the project and are
+ * not exported from the package entry point.
  */
-export interface BoxSize {
-  /** Box width in CSS pixels. */
-  width: number;
+export type * from './publicTypes';
 
-  /** Box height in CSS pixels. */
-  height: number;
-}
+/**
+ * Layout modes used by internal Storybook helpers.
+ *
+ * This type is not part of the public package API.
+ */
+export type Layout = 'inline' | 'block';

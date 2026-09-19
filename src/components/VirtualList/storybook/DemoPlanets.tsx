@@ -1,12 +1,13 @@
 import {useMemo} from 'react';
 import type {FC} from 'react';
-import {tv} from 'tailwind-variants';
 import {useToggle} from 'react-swissbit';
 
 import {VirtualList} from '../VirtualList';
 import type {VirtualListProps} from '../VirtualList';
-import type {Planet, DemoProps, Layout} from './types';
+import type {Planet, DemoProps} from './types';
 import type {VirtualListMarkerProps} from '../types';
+import {Header, Button} from '@/story_components';
+import type {Layout} from '@/types';
 
 export interface DemoPlanetsProps
   extends Omit<VirtualListProps, 'items' | 'className'>, DemoProps {
@@ -19,30 +20,21 @@ interface ItemProps
   layout: Layout;
 }
 
-const button = tv({
-  base: 'ltw:w-100 ltw:rounded-md ltw:border ltw:border-[var(--lus-demo-border)] ltw:bg-[var(--lus-demo-surface)] ltw:px-3 ltw:py-2 ltw:text-left ltw:text-[var(--lus-demo-text)] ltw:shadow-sm ltw:font-sans ltw:text-sm',
-  variants: {
-    layout: {
-      inline: 'ltw:inline',
-      block: 'ltw:block',
-    },
-  },
-});
-
 const Item: FC<ItemProps> = ({layout, radius, name, satellites, ...props}) => {
   const [isOpen, {toggle}] = useToggle(false);
   const buttonHeight = Math.floor(80 * Math.sqrt(radius));
 
   return (
     <>
-      <button
+      <Button
         type="button"
-        className={button({layout})}
+        className="ltw:w-100"
+        layout={layout}
         style={{height: `${buttonHeight}px`}}
         onClick={toggle}
       >
         {name} (Click to {isOpen ? 'collapse' : 'expand'} list of satellites)
-      </button>
+      </Button>
       <div
         aria-hidden={!isOpen}
         className="ltw:grid ltw:transition-[grid-template-rows,opacity] ltw:duration-300"
@@ -111,9 +103,7 @@ const DemoPlanets: FC<DemoPlanetsProps> = ({
 
   return (
     <>
-      <h1 className="ltw:mb-4 ltw:text-3xl ltw:font-semibold ltw:text-(--lus-demo-heading)">
-        {title}
-      </h1>
+      <Header>{title}</Header>
       <VirtualList
         key={listKey}
         {...props}

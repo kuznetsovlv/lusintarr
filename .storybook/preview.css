@@ -14,4 +14,11 @@
   --lus-demo-accent-soft: #cfe7ff;
 
   --lus-demo-heading: #4a90e8;
+
+  --lus-demo-gradient: linear-gradient(
+    90deg,
+    #3f8fe8 0%,
+    #79baff 50%,
+    #cfe7ff 100%
+  );
 }

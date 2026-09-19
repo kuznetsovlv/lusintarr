@@ -362,6 +362,330 @@ measured size. A custom marker that is significantly taller than its item may
 therefore overlap adjacent items. Applications using unusually large markers
 should account for this in their item layout.
 
+### Modal
+
+`Modal` renders viewport-positioned content through a React portal.
+
+It is intentionally controlled and behavior-oriented rather than being a
+pre-styled dialog component. Applications remain responsible for the modal
+content, visual appearance, close policy, and drag positioning.
+
+`Modal` supports:
+
+- optional full-screen blocking backdrop;
+- viewport-relative positioning in pixels or percentages;
+- pointer interaction detection outside the logical React subtree;
+- optional pointer-driven drag lifecycle events;
+- nested modals and React portal descendants.
+
+#### Basic usage
+
+```tsx
+import {useState} from 'react';
+import {Modal} from 'lusintarr';
+import 'lusintarr/style.css';
+
+export function Example() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}>
+        Open modal
+      </button>
+
+      <Modal open={open} blocking onInteractOutside={() => setOpen(false)}>
+        <div className="modal-content">
+          Modal content
+          <button type="button" onClick={() => setOpen(false)}>
+            Close
+          </button>
+        </div>
+      </Modal>
+    </>
+  );
+}
+```
+
+`Modal` does not change `open` itself. An outside interaction only invokes
+`onInteractOutside`; the application decides whether that interaction should
+close the modal or trigger another action.
+
+The component also does not provide an implicit Escape-key close policy.
+Keyboard behavior can be implemented by the consuming application according to
+its own interaction requirements.
+
+#### Blocking mode
+
+With `blocking={true}`, the modal window is rendered inside a fixed backdrop
+covering the viewport:
+
+```tsx
+<Modal open blocking>
+  <div>Blocking modal</div>
+</Modal>
+```
+
+The default backdrop background is:
+
+```css
+#0007
+```
+
+It can be overridden with `background`:
+
+```tsx
+<Modal open blocking background="rgba(20, 30, 50, 0.65)">
+  <div>Modal content</div>
+</Modal>
+```
+
+When `blocking` is disabled, no backdrop is rendered.
+
+#### Positioning
+
+`position` controls the modal window position relative to the viewport.
+
+A position may contain either one value:
+
+```tsx
+<Modal open position="50%">
+  ...
+</Modal>
+```
+
+or separate horizontal and vertical values in `x:y` format:
+
+```tsx
+<Modal open position="20:75%">
+  ...
+</Modal>
+```
+
+Unitless values are interpreted as CSS pixels:
+
+```tsx
+<Modal open position="20:40">
+  ...
+</Modal>
+```
+
+This places the modal at `20px` from the left and `40px` from the top.
+
+Percentage values have anchor semantics. The same relative point of the modal
+is aligned with the corresponding relative point of the viewport.
+
+For example:
+
+```tsx
+<Modal open position="0%">
+  ...
+</Modal>
+
+<Modal open position="50%">
+  ...
+</Modal>
+
+<Modal open position="100%">
+  ...
+</Modal>
+```
+
+represent top-left alignment, centering, and bottom-right alignment
+respectively.
+
+A single value is applied to both axes, so:
+
+```ts
+'50%';
+```
+
+is equivalent to:
+
+```ts
+'50%:50%';
+```
+
+Pixel and percentage coordinates may be mixed:
+
+```tsx
+<Modal open position="32:50%">
+  ...
+</Modal>
+```
+
+When `position` is omitted, the modal is centered using `50%`.
+
+#### Outside interaction
+
+`onInteractOutside` is called when a pointer interaction starts outside the
+modal's logical React subtree:
+
+```tsx
+<Modal
+  open={open}
+  onInteractOutside={(event) => {
+    console.log(event);
+    setOpen(false);
+  }}
+>
+  ...
+</Modal>
+```
+
+Outside detection follows the React tree rather than relying only on physical
+DOM ancestry.
+
+This means that content belonging to the modal but rendered elsewhere through
+a React portal is still considered inside the modal:
+
+```tsx
+<Modal open onInteractOutside={handleOutside}>
+  <ContentWithPortal />
+</Modal>
+```
+
+Pointer interaction with a portal rendered by `ContentWithPortal` does not
+trigger `handleOutside`.
+
+This also allows nested modals to behave independently. An interaction inside a
+nested modal is inside both modal React subtrees, while an interaction in the
+parent modal but outside the nested modal is outside only the nested modal.
+
+`Modal` does not impose an automatic close or stack policy. Applications can
+decide whether an outside interaction should close the current modal, several
+modals, or none of them.
+
+Content rendered through a completely independent React root does not share
+the modal's React event ancestry and therefore cannot automatically be
+classified as part of the modal.
+
+#### Dragging
+
+A React node can be supplied as `dragHandle`:
+
+```tsx
+<Modal open dragHandle={<header>Drag me</header>}>
+  <div>Modal content</div>
+</Modal>
+```
+
+Providing a drag handle does not make the modal move automatically.
+
+Instead, `Modal` emits pointer-driven drag lifecycle callbacks and leaves the
+position controlled by the application:
+
+```tsx
+import {useRef, useState} from 'react';
+import type {Coords, PointerDragEvent, Position} from 'lusintarr';
+import {Modal} from 'lusintarr';
+
+export function DraggableModal() {
+  const [position, setPosition] = useState<Position>('50%');
+  const previousCursor = useRef<Coords | null>(null);
+
+  const handleDragStart = ({cursor, container}: PointerDragEvent) => {
+    previousCursor.current = cursor;
+
+    // Convert the currently rendered position to pixels before movement.
+    setPosition(`${container.x}:${container.y}`);
+  };
+
+  const handleDrag = ({cursor, container}: PointerDragEvent) => {
+    if (previousCursor.current) {
+      const dx = cursor.x - previousCursor.current.x;
+      const dy = cursor.y - previousCursor.current.y;
+
+      setPosition(`${container.x + dx}:${container.y + dy}`);
+    }
+
+    previousCursor.current = cursor;
+  };
+
+  const handleDragStop = () => {
+    previousCursor.current = null;
+  };
+
+  return (
+    <Modal
+      open
+      position={position}
+      dragHandle={<header>Drag me</header>}
+      onDragStart={handleDragStart}
+      onDrag={handleDrag}
+      onDragStop={handleDragStop}
+    >
+      <div>Modal content</div>
+    </Modal>
+  );
+}
+```
+
+Dragging uses Pointer Events and pointer capture, so an active drag continues
+to receive movement and termination events after the pointer leaves the
+physical bounds of the drag handle.
+
+Only the primary pointer using the primary button starts a drag.
+
+`onDragStop` is also invoked when an active pointer interaction is cancelled.
+
+#### Drag event
+
+Drag callbacks receive a `PointerDragEvent`:
+
+```ts
+interface PointerDragEvent {
+  type: 'start' | 'drag' | 'end';
+  dragHandle: ElementBox;
+  container: ElementBox;
+  cursor: Coords;
+  view: BoxSize;
+}
+```
+
+`cursor` contains the current pointer coordinates relative to the viewport.
+
+`container` contains the current viewport-relative bounds of the complete modal
+window.
+
+`dragHandle` contains the current bounds of the drag handle.
+
+`view` contains the current viewport width and height.
+
+Element measurements are snapshots taken when each drag callback is created.
+
+#### Props
+
+| Prop                | Type                                | Default   | Description                                                               |
+| ------------------- | ----------------------------------- | --------- | ------------------------------------------------------------------------- |
+| `children`          | `ReactNode`                         | —         | Content rendered inside the modal window.                                 |
+| `open`              | `boolean`                           | `false`   | Controls whether the modal is rendered.                                   |
+| `blocking`          | `boolean`                           | `false`   | Renders a full-screen backdrop behind the modal.                          |
+| `background`        | `CSSProperties['background']`       | `'#0007'` | Background used by the blocking backdrop.                                 |
+| `position`          | `Position`                          | `'50%'`   | Controls the viewport-relative modal position.                            |
+| `className`         | `string`                            | —         | CSS class applied to the modal window container.                          |
+| `zIndex`            | `CSSProperties['zIndex']`           | —         | Sets the `z-index` of the portal container.                               |
+| `dragHandle`        | `ReactNode`                         | —         | Content used as the pointer drag handle.                                  |
+| `onDragStart`       | `(event: PointerDragEvent) => void` | —         | Called when a primary pointer starts dragging the handle.                 |
+| `onDrag`            | `(event: PointerDragEvent) => void` | —         | Called when the active pointer moves during a drag.                       |
+| `onDragStop`        | `(event: PointerDragEvent) => void` | —         | Called when an active drag finishes or is cancelled.                      |
+| `onInteractOutside` | `(event: PointerEvent) => void`     | —         | Called when pointer interaction starts outside the logical modal subtree. |
+
+#### Notes
+
+`Modal` is rendered through `OutBound`, so it requires a browser DOM and is
+ultimately mounted under `document.body`.
+
+The modal remains part of its original React component tree even though its DOM
+is rendered through a portal. React context and React event propagation
+therefore continue to work normally.
+
+`Modal` exposes dialog semantics through `role="dialog"`.
+
+Applications remain responsible for higher-level accessibility behavior such as
+focus management, focus restoration, accessible labelling, and any
+application-specific keyboard interaction such as Escape-key handling.
+
 ### OutBound
 
 Renders its children into `document.body` using a React portal.
@@ -431,6 +755,22 @@ The `VirtualList` stories include examples with:
 - fixed and per-item height estimates;
 - variable-height items and runtime size changes;
 - configurable ordered-list numbering.
+
+The `Modal` stories demonstrate:
+
+- blocking and non-blocking rendering;
+- configurable backdrop appearance;
+- viewport-relative positioning;
+- nested modals;
+- configurable outside-interaction policies;
+- controlled pointer-based dragging.
+
+The `OutBound` story demonstrates multiple independent portal containers
+rendering overlapping content into `document.body`.
+
+The example highlights that each `OutBound` keeps its children in the original
+React tree while allowing the rendered DOM to escape the component's physical
+DOM hierarchy.
 
 ## Development
 

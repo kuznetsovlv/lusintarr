@@ -5,6 +5,7 @@ import {VirtualList} from '../VirtualList';
 import DemoPlanets, {CustomMarker} from './DemoPlanets';
 import type {DemoPlanetsProps} from './DemoPlanets';
 import planets from './planets.json';
+import {Header} from '@/story_components';
 
 const meta = {
   title: 'Components/VirtualList',
@@ -188,9 +189,7 @@ export const PlainTextItems: Story = {
 
     return (
       <>
-        <h1 className="ltw:mb-4 ltw:text-3xl ltw:font-semibold ltw:text-(--lus-demo-heading)">
-          {title}
-        </h1>
+        <Header>{title}</Header>
 
         <VirtualList
           {...props}
