@@ -84,7 +84,7 @@ describe('Item', () => {
     mockElementHeight(40);
 
     render(
-      <Item index={2} shift={120} position="outside" onResize={vi.fn()}>
+      <Item index={2} shift={120} position="outside" onItemResize={vi.fn()}>
         Earth
       </Item>,
     );
@@ -103,7 +103,7 @@ describe('Item', () => {
     const onResize = vi.fn();
 
     render(
-      <Item index={3} shift={0} position="outside" onResize={onResize}>
+      <Item index={3} shift={0} position="outside" onItemResize={onResize}>
         Mars
       </Item>,
     );
@@ -125,7 +125,7 @@ describe('Item', () => {
     const onResize = vi.fn();
 
     render(
-      <Item index={4} shift={0} position="outside" onResize={onResize}>
+      <Item index={4} shift={0} position="outside" onItemResize={onResize}>
         Jupiter
       </Item>,
     );
@@ -148,7 +148,7 @@ describe('Item', () => {
     const onResize = vi.fn();
 
     render(
-      <Item index={5} shift={0} position="outside" onResize={onResize}>
+      <Item index={5} shift={0} position="outside" onItemResize={onResize}>
         Saturn
       </Item>,
     );
@@ -164,7 +164,7 @@ describe('Item', () => {
     mockElementHeight(40);
 
     const {unmount} = render(
-      <Item index={6} shift={0} position="outside" onResize={vi.fn()}>
+      <Item index={6} shift={0} position="outside" onItemResize={vi.fn()}>
         Uranus
       </Item>,
     );
@@ -194,7 +194,7 @@ describe('Item', () => {
         shift={0}
         Marker={Marker}
         position="outside"
-        onResize={vi.fn()}
+        onItemResize={vi.fn()}
       >
         Jupiter
       </Item>,
@@ -210,7 +210,7 @@ describe('Item', () => {
         shift={0}
         Marker={Marker}
         position="outside"
-        onResize={vi.fn()}
+        onItemResize={vi.fn()}
       >
         Earth
       </Item>,
@@ -229,7 +229,7 @@ describe('Item', () => {
         shift={0}
         Marker={Marker}
         position="outside"
-        onResize={vi.fn()}
+        onItemResize={vi.fn()}
       >
         Venus
       </Item>,
@@ -249,7 +249,7 @@ describe('Item', () => {
         shift={0}
         Marker={Marker}
         position="inside"
-        onResize={vi.fn()}
+        onItemResize={vi.fn()}
       >
         Venus
       </Item>,

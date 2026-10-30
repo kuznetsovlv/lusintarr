@@ -1,4 +1,4 @@
-import type {FC, ReactNode} from 'react';
+import type {FC, LiHTMLAttributes, ReactNode} from 'react';
 import {memo, useRef} from 'react';
 import {
   useResizeObserver,
@@ -7,8 +7,9 @@ import {
   useOnUnmount,
 } from 'react-swissbit';
 import type {VirtualListMarkerProps} from '../types';
+import {tv} from 'tailwind-variants';
 
-interface ItemProps {
+interface ItemProps extends LiHTMLAttributes<HTMLLIElement> {
   /** Content rendered inside the list item. */
   children: ReactNode;
 
@@ -40,8 +41,12 @@ interface ItemProps {
    * @param height - Current rendered item height in CSS pixels.
    * @param index - Zero-based index of the item in the source array.
    */
-  onResize: (height: number, index: number) => void;
+  onItemResize: (height: number, index: number) => void;
 }
+
+export const item = tv({
+  base: 'ltw:bg-transparent ltw:w-fit ltw:h-fit ltw:p-0 ltw:m-0 ltw:border-0 ltw:absolute',
+});
 
 /**
  * Renders and measures a single visible VirtualList item.
@@ -55,12 +60,15 @@ interface ItemProps {
  * width and do not contribute to the item's measured size.
  */
 const Item: FC<ItemProps> = ({
+  className,
   children,
   index,
   shift,
   Marker,
   position,
-  onResize,
+  style,
+  onItemResize,
+  ...props
 }) => {
   const ref = useRef<HTMLLIElement>(null);
 
@@ -74,7 +82,7 @@ const Item: FC<ItemProps> = ({
 
       const {height} = target.getBoundingClientRect();
 
-      onResize(height, index);
+      onItemResize(height, index);
     }
   });
 
@@ -85,7 +93,7 @@ const Item: FC<ItemProps> = ({
 
     if (ref.current) {
       const {height} = ref.current.getBoundingClientRect();
-      onResize(height, index);
+      onItemResize(height, index);
     }
   });
 
@@ -95,8 +103,9 @@ const Item: FC<ItemProps> = ({
 
   return (
     <li
-      className="ltw:bg-transparent ltw:w-fit ltw:h-fit ltw:p-0 ltw:m-0 ltw:border-0 ltw:absolute"
-      style={{top: `${shift}px`}}
+      {...props}
+      className={item({className})}
+      style={{...style, top: `${shift}px`}}
       ref={ref}
     >
       {!!Marker && (

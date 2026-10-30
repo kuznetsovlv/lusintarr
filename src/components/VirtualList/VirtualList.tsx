@@ -1,4 +1,10 @@
-import type {FC, ReactNode, UIEvent} from 'react';
+import type {
+  FC,
+  ReactNode,
+  UIEvent,
+  HTMLAttributes,
+  LiHTMLAttributes,
+} from 'react';
 import {useRef, useState, useLayoutEffect} from 'react';
 import {
   useResizeObserver,
@@ -17,7 +23,9 @@ import type {
   VirtualListOlType,
 } from './types';
 
-export interface VirtualListProps {
+export interface VirtualListProps extends HTMLAttributes<
+  HTMLUListElement | HTMLOListElement
+> {
   /** CSS class applied to the scrollable viewport element. */
   className?: string;
 
@@ -96,6 +104,8 @@ export interface VirtualListProps {
    * @defaultValue `1`
    */
   startFrom?: number;
+
+  getItemProps?: (index: number) => LiHTMLAttributes<HTMLLIElement>;
 }
 
 /** Ordered-list marker types recognized by VirtualList. */
@@ -129,6 +139,9 @@ export const VirtualList: FC<VirtualListProps> = ({
   position,
   markerSpaceSize,
   startFrom = DEFAULT_START_FROM,
+  getItemProps,
+  style,
+  ...props
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLOListElement | HTMLUListElement>(null);
@@ -211,6 +224,7 @@ export const VirtualList: FC<VirtualListProps> = ({
     type,
     position,
     useAverageHeight,
+    getItemProps,
   });
 
   /*
@@ -226,14 +240,15 @@ export const VirtualList: FC<VirtualListProps> = ({
 
   const listStyle =
     markerSpaceSize !== undefined && type !== 'none' && position !== 'inside'
-      ? {paddingInlineStart: markerSpaceSize}
-      : undefined;
+      ? {...style, paddingInlineStart: markerSpaceSize}
+      : style;
 
   const listType = typeof type === 'function' ? 'custom' : type;
 
   return (
     <div className={viewport({className})} ref={ref} onScroll={handleScroll}>
       <List
+        {...props}
         className={list({type: listType, position})}
         ordered={isListOrdered}
         listRef={listRef}

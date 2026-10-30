@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import type {LiHTMLAttributes, ReactNode} from 'react';
 import {useState, useMemo, useDeferredValue} from 'react';
 import {useHandler} from 'react-swissbit';
 import Item from './Item';
@@ -54,6 +54,8 @@ interface ListSource {
    * `estimatedItemHeight`.
    */
   useAverageHeight: boolean;
+
+  getItemProps?: (index: number) => LiHTMLAttributes<HTMLLIElement>;
 }
 
 /**
@@ -95,6 +97,7 @@ export default function useRenderData({
   type,
   position = 'outside',
   useAverageHeight,
+  getItemProps,
 }: ListSource): [list: ReactNode[], start: number, fullHeight: number] {
   const [heightMap, fullHeight, setItemHeight] = useHeightMap(
     items,
@@ -114,12 +117,15 @@ export default function useRenderData({
     for (let i = start; i < items.length; ++i) {
       list.push(
         <Item
+          {...getItemProps?.(i)}
           key={i}
           index={i}
+          aria-posinset={i + 1}
+          aria-setsize={items.length}
           Marker={typeof type === 'function' ? type : undefined}
           position={position}
           shift={height + deferredScroll}
-          onResize={setItemHeight}
+          onItemResize={setItemHeight}
         >
           {items[i]}
         </Item>,
@@ -141,6 +147,7 @@ export default function useRenderData({
     fullHeight,
     position,
     type,
+    getItemProps,
   ]);
 }
 

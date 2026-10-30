@@ -1,6 +1,8 @@
-import type {FC, ReactNode, Ref, CSSProperties} from 'react';
+import type {FC, ReactNode, Ref, CSSProperties, HTMLAttributes} from 'react';
 
-interface ListProps {
+interface ListProps extends HTMLAttributes<
+  HTMLUListElement | HTMLOListElement
+> {
   /** List items currently rendered by VirtualList. */
   children: ReactNode;
 
@@ -44,9 +46,11 @@ const List: FC<ListProps> = ({
   ordered,
   start,
   style,
+  ...props
 }) =>
   ordered ? (
     <ol
+      {...props}
       className={className}
       start={start}
       style={style}
@@ -55,7 +59,7 @@ const List: FC<ListProps> = ({
       {children}
     </ol>
   ) : (
-    <ul className={className} style={style} ref={listRef}>
+    <ul {...props} className={className} style={style} ref={listRef}>
       {children}
     </ul>
   );
