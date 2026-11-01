@@ -114,3 +114,5 @@ export interface PointerDragEvent {
   /** Current viewport dimensions. */
   view: BoxSize;
 }
+
+export type Align = 'start' | 'center' | 'end';

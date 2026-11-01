@@ -2,7 +2,11 @@ import type {LiHTMLAttributes, ReactNode} from 'react';
 import {useState, useMemo, useDeferredValue} from 'react';
 import {useHandler} from 'react-swissbit';
 import Item from './Item';
-import type {VirtualListEstimatedItemHeight, VirtualListType} from './types';
+import type {
+  VirtualListEstimatedItemHeight,
+  VirtualListScrollAlign,
+  VirtualListType,
+} from './types';
 
 /**
  * Reports a measured item height.
@@ -56,6 +60,13 @@ interface ListSource {
   useAverageHeight: boolean;
 
   getItemProps?: (index: number) => LiHTMLAttributes<HTMLLIElement>;
+
+  keepMountedIndexes?: number[] | Set<number>;
+  ariaActivedescendant?: string | number;
+  startFrom: number;
+  scrollToItemIndex?: number;
+  scrollAlign?: VirtualListScrollAlign;
+  ordered: boolean;
 }
 
 /**
@@ -98,7 +109,13 @@ export default function useRenderData({
   position = 'outside',
   useAverageHeight,
   getItemProps,
-}: ListSource): [list: ReactNode[], start: number, fullHeight: number] {
+  keepMountedIndexes,
+  ariaActivedescendant,
+  startFrom,
+  scrollToItemIndex,
+  scrollAlign,
+  ordered,
+}: ListSource): [list: ReactNode[], fullHeight: number, scrollTop: number] {
   const [heightMap, fullHeight, setItemHeight] = useHeightMap(
     items,
     estimatedItemHeight,
@@ -109,46 +126,146 @@ export default function useRenderData({
 
   return useMemo(() => {
     const list: ReactNode[] = [];
+    const keep = Array.isArray(keepMountedIndexes)
+      ? new Set(keepMountedIndexes)
+      : keepMountedIndexes;
 
-    const [start, shift] = getShift(deferredScroll, heightMap);
+    const scrollTop = getScrollTop({
+      scroll: deferredScroll,
+      scrollToIndex: scrollToItemIndex,
+      scrollAlign,
+      fullHeight,
+      heightMap,
+      contentAreaHeight,
+    });
 
-    let height = shift - deferredScroll;
+    let itemTop = 0;
 
-    for (let i = start; i < items.length; ++i) {
-      list.push(
-        <Item
-          {...getItemProps?.(i)}
-          key={i}
-          index={i}
-          aria-posinset={i + 1}
-          aria-setsize={items.length}
-          Marker={typeof type === 'function' ? type : undefined}
-          position={position}
-          shift={height + deferredScroll}
-          onItemResize={setItemHeight}
-        >
-          {items[i]}
-        </Item>,
-      );
-      height += heightMap[i]!;
+    for (let i = 0; i < items.length; ++i) {
+      const itemProps = getItemProps?.(i);
 
-      if (height >= contentAreaHeight) {
-        break;
+      const currentItemTop = itemTop;
+
+      itemTop += heightMap[i]!;
+
+      if (
+        (itemTop > deferredScroll &&
+          currentItemTop < deferredScroll + contentAreaHeight) ||
+        keep?.has(i) ||
+        (!!ariaActivedescendant && itemProps?.id === ariaActivedescendant)
+      ) {
+        list.push(
+          <Item
+            {...itemProps}
+            key={i}
+            index={i}
+            aria-posinset={i + 1}
+            aria-setsize={items.length}
+            Marker={typeof type === 'function' ? type : undefined}
+            position={position}
+            shift={currentItemTop}
+            value={ordered ? i + startFrom : undefined}
+            onItemResize={setItemHeight}
+          >
+            {items[i]}
+          </Item>,
+        );
       }
     }
 
-    return [list, start, fullHeight];
+    return [list, fullHeight, scrollTop];
   }, [
+    keepMountedIndexes,
+    ariaActivedescendant,
     deferredScroll,
     heightMap,
-    items,
-    contentAreaHeight,
-    setItemHeight,
+    scrollToItemIndex,
+    scrollAlign,
     fullHeight,
-    position,
-    type,
+    items,
     getItemProps,
+    contentAreaHeight,
+    type,
+    position,
+    startFrom,
+    setItemHeight,
+    ordered,
   ]);
+}
+
+interface ScrollData {
+  scroll: number;
+  scrollToIndex?: number;
+  scrollAlign?: VirtualListScrollAlign;
+  heightMap: number[];
+  fullHeight: number;
+  contentAreaHeight: number;
+}
+
+export function getScrollTop({
+  scrollAlign = 'nearest',
+  scroll: currentScroll,
+  scrollToIndex,
+  heightMap,
+  fullHeight,
+  contentAreaHeight,
+}: ScrollData): number {
+  if (
+    scrollToIndex === undefined ||
+    scrollToIndex < 0 ||
+    scrollToIndex >= heightMap.length
+  ) {
+    return currentScroll;
+  }
+  let itemTop: number = 0;
+  let i: number;
+  for (i = 0; i < scrollToIndex; ++i) {
+    itemTop += heightMap[i]!;
+  }
+
+  let scrollTop;
+  const itemHeight = heightMap[i] ?? 0;
+  const itemBottom = itemTop + itemHeight;
+
+  switch (scrollAlign) {
+    case 'start':
+      scrollTop = itemTop;
+      break;
+    case 'end':
+      scrollTop = itemBottom - contentAreaHeight;
+      break;
+    case 'center':
+      scrollTop = itemTop - (contentAreaHeight - itemHeight) / 2;
+      break;
+    case 'nearest': {
+      const viewportBottom = currentScroll + contentAreaHeight;
+
+      if (itemHeight > contentAreaHeight) {
+        if (itemBottom <= currentScroll) {
+          scrollTop = itemBottom - contentAreaHeight;
+        } else if (itemTop >= viewportBottom) {
+          scrollTop = itemTop;
+        } else {
+          scrollTop = currentScroll;
+        }
+
+        break;
+      }
+
+      if (itemTop < currentScroll) {
+        scrollTop = itemTop;
+      } else if (itemBottom > viewportBottom) {
+        scrollTop = itemBottom - contentAreaHeight;
+      } else {
+        return currentScroll;
+      }
+      break;
+    }
+  }
+
+  const maxScroll = Math.max(0, fullHeight - contentAreaHeight);
+
+  return Math.max(0, Math.min(scrollTop, maxScroll));
 }
 
 /**
@@ -257,40 +374,6 @@ export function useHeightMap(
   );
 
   return [heightMap, fullHeight, setItemHeight];
-}
-
-/**
- * Finds the first item intersecting the current vertical scroll position and
- * calculates its offset from the top of the virtual list.
- *
- * An item whose bottom edge exactly matches the scroll position is retained as
- * the first rendered item. If the scroll position is beyond the estimated end
- * of the list, the returned start index equals `heightMap.length`.
- *
- * @param scroll - Vertical scroll offset in CSS pixels.
- * @param heightMap - Effective height of every list item in CSS pixels.
- * @returns The zero-based index of the first rendered item and its vertical
- * offset from the top of the list.
- */
-export function getShift(
-  scroll: number,
-  heightMap: number[],
-): [start: number, shift: number] {
-  let start = 0;
-  let shift = 0;
-
-  while (start < heightMap.length) {
-    const itemHeight = heightMap[start]!;
-
-    if (shift + itemHeight >= scroll) {
-      return [start, shift];
-    }
-
-    shift += itemHeight;
-    ++start;
-  }
-
-  return [start, shift];
 }
 
 /**

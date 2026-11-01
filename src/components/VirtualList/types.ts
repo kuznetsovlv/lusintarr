@@ -1,4 +1,5 @@
 import type {ComponentProps, FC} from 'react';
+import type {Align} from '@/publicTypes';
 
 /**
  * Returns an estimated height for a VirtualList item.
@@ -53,3 +54,17 @@ export type VirtualListUlType = 'none' | 'disc' | 'circle' | 'square';
  */
 export type VirtualListType =
   VirtualListOlType | VirtualListUlType | FC<VirtualListMarkerProps>;
+
+export type VirtualListScrollAlign = Align | 'nearest';
+
+export interface VirtualListHandleScrollOptions {
+  align?: VirtualListScrollAlign;
+  behavior?: ScrollBehavior;
+}
+
+export interface VirtualListHandle {
+  scrollToIndex: (
+    index: number,
+    options?: VirtualListHandleScrollOptions,
+  ) => void;
+}

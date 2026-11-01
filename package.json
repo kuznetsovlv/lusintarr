@@ -84,7 +84,7 @@
   },
   "homepage": "https://github.com/kuznetsovlv/lusintarr#readme",
   "dependencies": {
-    "react-swissbit": "^0.4.0",
+    "react-swissbit": "^0.6.0",
     "tailwind-variants": "^3.3.1"
   }
 }

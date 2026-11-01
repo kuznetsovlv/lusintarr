@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       react-swissbit:
-        specifier: ^0.4.0
-        version: 0.4.0(react@19.2.8)
+        specifier: ^0.6.0
+        version: 0.6.0(react@19.2.8)
       tailwind-variants:
         specifier: ^3.3.1
         version: 3.3.1(tailwindcss@4.3.3)
@@ -2401,8 +2401,8 @@ packages:
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
-  react-swissbit@0.4.0:
-    resolution: {integrity: sha512-pIecRpSJw2PK1IwkZ8/mc8TYbmLh9XykmvSsAcjxWQFFqBZ7ogb5mEjq9mhnTeBAzEOjIVdhaqOuFrG6SIvrTg==}
+  react-swissbit@0.6.0:
+    resolution: {integrity: sha512-5/fjo58wwnxo5BOjUqLAMc4kOqLjiexelFVOef9NSDeJ9lgv0yQuXRdvM0oi2YaOHlVwENz3TSWdYMYwA3G/AQ==}
     peerDependencies:
       react: '>=18'
 
@@ -4937,7 +4937,7 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  react-swissbit@0.4.0(react@19.2.8):
+  react-swissbit@0.6.0(react@19.2.8):
     dependencies:
       react: 19.2.8
 

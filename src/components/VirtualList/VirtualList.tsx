@@ -4,8 +4,9 @@ import type {
   UIEvent,
   HTMLAttributes,
   LiHTMLAttributes,
+  Ref,
 } from 'react';
-import {useRef, useState, useLayoutEffect} from 'react';
+import {useRef, useState, useLayoutEffect, useImperativeHandle} from 'react';
 import {
   useResizeObserver,
   useHandler,
@@ -21,6 +22,9 @@ import type {
   VirtualListEstimatedItemHeight,
   VirtualListType,
   VirtualListOlType,
+  VirtualListHandle,
+  VirtualListScrollAlign,
+  VirtualListHandleScrollOptions,
 } from './types';
 
 export interface VirtualListProps extends HTMLAttributes<
@@ -106,6 +110,19 @@ export interface VirtualListProps extends HTMLAttributes<
   startFrom?: number;
 
   getItemProps?: (index: number) => LiHTMLAttributes<HTMLLIElement>;
+
+  keepMountedIndexes?: number[] | Set<number>;
+
+  listHandleRef?: Ref<VirtualListHandle>;
+
+  defaultScrollAlign?: VirtualListScrollAlign;
+  defaultScrollBehavior?: ScrollBehavior;
+}
+
+interface ScrollIntent {
+  index: number;
+  align: VirtualListScrollAlign;
+  behavior: ScrollBehavior;
 }
 
 /** Ordered-list marker types recognized by VirtualList. */
@@ -141,13 +158,41 @@ export const VirtualList: FC<VirtualListProps> = ({
   startFrom = DEFAULT_START_FROM,
   getItemProps,
   style,
+  keepMountedIndexes,
+  listHandleRef,
+  defaultScrollAlign = 'nearest',
+  defaultScrollBehavior = 'auto',
   ...props
 }) => {
+  const ariaActivedescendant = props['aria-activedescendant'];
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLOListElement | HTMLUListElement>(null);
 
   const [contentAreaHeight, setContentAreaHeight] = useState<number>(0);
   const [scroll, setScroll] = useState<number>(0);
+  const [scrollIntent, setScrollIntent] = useState<ScrollIntent>();
+
+  useImperativeHandle(listHandleRef, () => {
+    return {
+      scrollToIndex(
+        index: number,
+        {
+          align = defaultScrollAlign,
+          behavior = defaultScrollBehavior,
+        }: VirtualListHandleScrollOptions = {},
+      ) {
+        if (!items.length || !Number.isFinite(index)) {
+          return;
+        }
+
+        setScrollIntent({
+          align,
+          behavior,
+          index: Math.max(Math.min(Math.floor(index), items.length - 1), 0),
+        });
+      },
+    };
+  });
 
   const estimatedItemHeight =
     originalEstimatedItemHeight ?? DEFAULT_ESTIMATED_ITEM_HEIGHT;
@@ -208,15 +253,7 @@ export const VirtualList: FC<VirtualListProps> = ({
 
   const isListOrdered = olTypeSet.has(type);
 
-  /**
-   * Stores the current native vertical scroll offset for virtualization
-   * calculations.
-   */
-  const handleScroll = useHandler(({currentTarget}: UIEvent<HTMLDivElement>) =>
-    setScroll(currentTarget.scrollTop ?? 0),
-  );
-
-  const [itemList, start, fullHeight] = useRenderData({
+  const [itemList, fullHeight, scrollTop] = useRenderData({
     items,
     estimatedItemHeight,
     scroll,
@@ -225,7 +262,22 @@ export const VirtualList: FC<VirtualListProps> = ({
     position,
     useAverageHeight,
     getItemProps,
+    keepMountedIndexes,
+    ariaActivedescendant,
+    startFrom,
+    scrollToItemIndex: scrollIntent?.index,
+    scrollAlign: scrollIntent?.align,
+    ordered: isListOrdered,
   });
+
+  /**
+   * Stores the current native vertical scroll offset for virtualization
+   * calculations.
+   */
+  const handleScroll = ({currentTarget}: UIEvent<HTMLDivElement>) =>
+    setScroll(currentTarget.scrollTop ?? 0);
+
+  const cancelScrollIntent = () => setScrollIntent(undefined);
 
   /*
    * Represent the height of the complete source list in the DOM so that the
@@ -238,6 +290,22 @@ export const VirtualList: FC<VirtualListProps> = ({
     }
   }, [fullHeight]);
 
+  useLayoutEffect(() => {
+    if (scrollIntent) {
+      ref.current?.scrollTo({
+        top: scrollTop,
+        behavior: scrollIntent.behavior,
+      });
+    }
+  }, [scrollTop, scrollIntent]);
+
+  useLayoutEffect(() => {
+    if (scrollIntent && scrollIntent.index >= items.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setScrollIntent(undefined);
+    }
+  }, [items.length, scrollIntent]);
+
   const listStyle =
     markerSpaceSize !== undefined && type !== 'none' && position !== 'inside'
       ? {...style, paddingInlineStart: markerSpaceSize}
@@ -246,13 +314,20 @@ export const VirtualList: FC<VirtualListProps> = ({
   const listType = typeof type === 'function' ? 'custom' : type;
 
   return (
-    <div className={viewport({className})} ref={ref} onScroll={handleScroll}>
+    <div
+      className={viewport({className})}
+      ref={ref}
+      onScroll={handleScroll}
+      onWheelCapture={cancelScrollIntent}
+      onTouchStartCapture={cancelScrollIntent}
+      onPointerDownCapture={cancelScrollIntent}
+      onKeyDownCapture={cancelScrollIntent}
+    >
       <List
         {...props}
         className={list({type: listType, position})}
         ordered={isListOrdered}
         listRef={listRef}
-        start={start + startFrom}
         style={listStyle}
       >
         {itemList}

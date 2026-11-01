@@ -16,14 +16,6 @@ interface ListProps extends HTMLAttributes<
   ordered: boolean;
 
   /**
-   * Ordinal value of the first rendered item.
-   *
-   * Applied only to ordered lists. This preserves correct marker numbering
-   * when virtualization omits preceding items from the DOM.
-   */
-  start: number;
-
-  /**
    * Inline styles applied to the semantic `ul` or `ol` element.
    *
    * VirtualList currently uses this to override the space reserved for outside
@@ -44,7 +36,6 @@ const List: FC<ListProps> = ({
   className,
   listRef,
   ordered,
-  start,
   style,
   ...props
 }) =>
@@ -52,7 +43,6 @@ const List: FC<ListProps> = ({
     <ol
       {...props}
       className={className}
-      start={start}
       style={style}
       ref={listRef as Ref<HTMLOListElement>}
     >
